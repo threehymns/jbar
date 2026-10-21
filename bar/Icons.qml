@@ -12,9 +12,6 @@ QtObject {
     readonly property string workspaceDefault: "" // nf-md-circle_outline
 
     // temperature
-    readonly property string tempLow: "󱃃" // thermometer, cold
-    readonly property string tempMid: "󰔏" // thermometer
-    readonly property string tempHigh: "󱃂" // thermometer, hot
     readonly property string tempCritical: "󰀦" // critical
     // temperature scale, cold -> hot (waybar picks one of three icons)
     readonly property var temperature: ["󱃃", "󰔏", "󱃂"]

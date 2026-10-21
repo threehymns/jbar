@@ -30,7 +30,6 @@ Module {
     }
 
     readonly property int count: metric.value
-    readonly property bool visibleCount: count > 0
 
     onClicked: Quickshell.execDetached(["kitty", "-T", "Updates", "yay", "-Syua"])
 
