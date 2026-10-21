@@ -23,25 +23,14 @@ Module {
         return ""
     }
 
-    onClicked: {
-        if (root.player)
-            root.player.togglePlaying()
-    }
-    onMiddleClicked: {
-        if (root.player)
-            root.player.togglePlaying()
-    }
-    onRightClicked: {
-        if (root.player)
-            root.player.next()
-    }
+    onClicked: Player.toggle()
+    onMiddleClicked: Player.toggle()
+    onRightClicked: Player.next()
     onScrolled: direction => {
-        if (!root.player)
-            return
         if (direction > 0)
-            root.player.next()
+            Player.next()
         else
-            root.player.previous()
+            Player.previous()
     }
 
     iconImage: root.artUrl
