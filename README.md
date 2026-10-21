@@ -17,11 +17,12 @@ bar/Label.qml        a text run with the typography of the bar
 bar/Metric.qml       a number of the system, with its states and its glyphs
 bar/DrawerGroup.qml  a group of two modules, the second one hidden
 bar/Popup.qml        a popup of the bar, anchored below its module
-bar/Tooltip.qml      controller for the shared tooltip popup
+bar/TooltipPopup.qml the tooltip of a module
 bar/adapters/        the things that talk to the system
   Niri.qml           niri IPC (workspaces, focused window)
   Player.qml         the current MPRIS player
   Poller.qml         reads the value of a metric with a command
+bar/metrics/         the metric of every system the bar shows
 bar/modules/         one file per module
 tests/               the tests of the headless modules
 ```
@@ -44,8 +45,8 @@ Set it to an empty list to show the bar on every output.
 
 ## Tests
 
-The modules that hold logic are plain objects without any I/O, so they can
-be tested without a bar:
+The metrics of the systems are plain objects without any I/O, so they can
+be tested without a bar and without a command:
 
 ```bash
 /usr/lib/qt6/bin/qmltestrunner -input tests
@@ -78,9 +79,9 @@ Both groups use the waybar `drawer` option: the second module of the group
 is hidden and slides out to the left while the group is hovered, the module
 that is hovered stays where it is.
 
-Every output gets its own bar, its own tooltip and its own popups: the
-popups are registered for the window they belong to, so the tooltip of one
-output never shows up on another.
+Every output gets its own bar, its own tooltip and its own popups: a module
+finds the window of its bar on its own, so the tooltip of one output never
+shows up on another.
 
 ## Differences to waybar
 
