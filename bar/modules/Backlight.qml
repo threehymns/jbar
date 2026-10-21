@@ -37,7 +37,6 @@ Module {
     readonly property int percent: metric.value
 
     onClicked: sliderPopup.visible = !sliderPopup.visible
-    onHoveredLeave: sliderPopup.visible = false
     onScrolled: direction => {
         const step = 5
         setBrightness(root.percent + (direction > 0 ? step : -step))

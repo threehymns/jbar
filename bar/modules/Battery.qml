@@ -91,8 +91,11 @@ Module {
         return Math.floor(minutes / 60) + "h " + (minutes % 60) + "min"
     }
 
-    onClicked: profileMenu.visible = !profileMenu.visible
-    onHoveredLeave: profileMenu.visible = false
+    onClicked: {
+        profileMenu.visible = !profileMenu.visible
+        // the tooltip would sit on top of the menu
+        Tooltip.hide(root)
+    }
 
     visible: present
 

@@ -15,6 +15,12 @@ import Quickshell
 //         implicitHeight: 100
 //         Text { anchors.centerIn: parent }
 //     }
+//
+// The popup is a window of its own below the bar, so the pointer has to
+// travel from the module into the popup: the module loses the hover before
+// the popup gets it. A popup that closed on that would vanish before the
+// pointer could reach it, so the popup stays open while the pointer is over
+// the module or over the popup and closes when it is over neither.
 PopupWindow {
     id: popup
 
@@ -22,7 +28,7 @@ PopupWindow {
     property var barWindow: null
 
     // The module the popup is anchored to.
-    property Item target: null
+    property Module target: null
 
     // The radius of the frame around the content.
     property int radius: 12
@@ -42,6 +48,41 @@ PopupWindow {
     }
     anchor.rect.y: barWindow ? barWindow.height : 0
 
+    // The pointer is over the popup.
+    readonly property bool pointerInside: pointer.hovered
+
+    // The pointer is over the module the popup belongs to.
+    readonly property bool pointerOverTarget: target !== null && target.hovered
+
+    // The popup is closed when the pointer is over neither the module nor
+    // the popup. The pointer needs a moment to travel from the module into
+    // the popup, so the close is delayed.
+    function closeWhenIdle() {
+        if (pointerInside || pointerOverTarget)
+            return
+        closeTimer.restart()
+    }
+
+    // The pointer left the module.
+    onPointerOverTargetChanged: {
+        if (!pointerOverTarget)
+            closeWhenIdle()
+    }
+
+    // The pointer entered or left the popup.
+    onPointerInsideChanged: {
+        if (pointerInside)
+            closeTimer.stop()
+        else
+            closeWhenIdle()
+    }
+
+    Timer {
+        id: closeTimer
+        interval: 150
+        onTriggered: popup.visible = false
+    }
+
     Rectangle {
         id: frame
         anchors.fill: parent
@@ -49,5 +90,12 @@ PopupWindow {
         color: Theme.mainBg
         border.width: 2
         border.color: Theme.mainBr
+    }
+
+    // The pointer inside the popup. The handler only watches the pointer, it
+    // does not take the mouse away from the content of the popup.
+    HoverHandler {
+        id: pointer
+        blocking: false
     }
 }

@@ -25,7 +25,6 @@ Module {
 
     onClicked: root.yearMode = !root.yearMode
     onHoveredEnter: calendarPopup.visible = true
-    onHoveredLeave: calendarPopup.visible = false
 
     iconText: Icons.calendar
     labelText: root.now ? Qt.formatDate(root.now, "dd-MM") : ""
