@@ -2,12 +2,14 @@ import QtQuick
 
 // Metric — a number of the system, with its states and its glyphs.
 //
-// The metric turns the output of a command into a value, knows the warning
-// and the critical threshold of the value, and the glyph that belongs to
-// it.
+// The metric turns a sample into a value, knows the warning and the
+// critical threshold of the value, and the glyph that belongs to it.
 //
 // It is a plain object without any I/O, so the arithmetic of a metric can
 // be tested without a bar and without a command.
+//
+// The metrics of the systems live in bar/metrics: they add the command and
+// the parsing of their system to this.
 //
 //     Metric {
 //         parse: output => parseInt(output)

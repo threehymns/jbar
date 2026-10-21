@@ -1,0 +1,41 @@
+import QtQuick
+import "../"
+
+// TemperatureMetric — the metric of the temperature.
+//
+// The waybar config reads thermal zone 1 and marks the module critical from
+// 194°F (90°C) on, which also switches the label to the critical icon.
+//
+// The value of the metric is the temperature in Fahrenheit, the unit the
+// module is displayed in, so the thresholds and the scale of the glyphs
+// speak the same unit.
+Metric {
+    // The command that reads the value.
+    readonly property var command: ["sh", "-c",
+        "cat /sys/class/thermal/thermal_zone" + thermalZone
+        + "/temp 2>/dev/null | head -1"]
+
+    // How often the command runs, in milliseconds.
+    readonly property int interval: 10000
+
+    // thermal-zone
+    readonly property int thermalZone: 1
+
+    // critical-threshold (°F, the unit the value is in)
+    criticalThreshold: 194
+
+    // the thermal zone reports millidegrees of Celsius
+    parse: output => {
+        const value = parseInt(output)
+        if (isNaN(value))
+            return null
+        return Math.round(value / 1000 * 1.8 + 32)
+    }
+
+    // the scale of the icons covers the critical threshold
+    scaleMax: criticalThreshold
+    glyphs: Icons.temperature
+
+    // The tooltip of the module.
+    readonly property string tip: "Temperature in Fahrenheit: " + value + "°F"
+}

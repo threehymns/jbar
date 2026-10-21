@@ -1,0 +1,6 @@
+BacklightMetric BacklightMetric.qml
+CpuMetric CpuMetric.qml
+MemoryMetric MemoryMetric.qml
+NetworkMetric NetworkMetric.qml
+TemperatureMetric TemperatureMetric.qml
+UpdatesMetric UpdatesMetric.qml
