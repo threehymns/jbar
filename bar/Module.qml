@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 
 // Module — base class for every bar module.
 //
@@ -12,6 +13,9 @@ import QtQuick
 //
 // The typography lives here as well: a module names its glyph and its value
 // and the module draws them, so no module spells out a font again.
+//
+// A module owns its popup as well: it finds the window of the bar on its
+// own, so a module that opens a popup is not handed the bar.
 Rectangle {
     id: root
 
@@ -45,6 +49,28 @@ Rectangle {
     property bool dimOnHover: false
     // Keep the label dimmed regardless of hover (states.css inactive rules).
     property bool stateDim: false
+
+    // ── the window of the bar ──────────────────────────────────────────────
+
+    // The window the module lives in. The module finds it on its own, so a
+    // module does not have to be handed the bar.
+    readonly property var barWindow: root.QsWindow.window
+
+    // The tooltip popup of the bar. The bar owns one per output, the
+    // module asks the bar for it.
+    readonly property var tipPopup: root.barWindow
+        ? root.barWindow.tooltipPopup : null
+
+    // ── the popup of the module ────────────────────────────────────────────
+
+    // The popup of this module. A module that wants one assigns it, the
+    // base anchors it to the module and opens and closes it.
+    property var popup: null
+
+    onPopupChanged: {
+        if (root.popup)
+            root.popup.target = root
+    }
 
     // ── the content of the module ─────────────────────────────────────────
     // The glyph of the module, drawn in the Nerd Font.
@@ -157,11 +183,11 @@ Rectangle {
         onEntered: {
             root.hoveredEnter()
             if (root.tip !== "")
-                Tooltip.show(root, root.tip)
+                root.showTip()
         }
         onExited: {
             root.hoveredLeave()
-            Tooltip.hide(root)
+            root.hideTip()
         }
 
         onClicked: mouse => {
@@ -179,5 +205,49 @@ Rectangle {
             else if (wheel.angleDelta.y < 0)
                 root.scrolled(-1)
         }
+    }
+
+    // ── the tip of the module ──────────────────────────────────────────────
+
+    // Show the tip of the module in the tooltip of the bar.
+    function showTip() {
+        const popup = root.tipPopup
+        if (!popup)
+            return
+        popup.target = root
+        popup.tipText = root.tip
+        popup.visible = true
+    }
+
+    // Hide the tip of the module.
+    function hideTip() {
+        const popup = root.tipPopup
+        if (popup)
+            popup.visible = false
+    }
+
+    // ── the popup of the module ────────────────────────────────────────────
+
+    // Open the popup of the module.
+    function openPopup() {
+        // the tip and the popup of a module would show up on top of
+        // each other
+        root.hideTip()
+        if (root.popup)
+            root.popup.visible = true
+    }
+
+    // Close the popup of the module.
+    function closePopup() {
+        if (root.popup)
+            root.popup.visible = false
+    }
+
+    // Open the popup of the module, or close it if it is open.
+    function togglePopup() {
+        if (root.popup && root.popup.visible)
+            root.closePopup()
+        else
+            root.openPopup()
     }
 }

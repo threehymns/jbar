@@ -19,6 +19,11 @@ PanelWindow {
 
     readonly property string outputName: screen ? screen.name : ""
 
+    // The tooltip of the bar. Every output gets its own tooltip, the
+    // modules ask the bar for it, so the tooltip of one output never shows
+    // up on another.
+    readonly property var tooltipPopup: tipPopup
+
     anchors {
         left: true
         top: true
@@ -43,22 +48,8 @@ PanelWindow {
             // ── tooltip ──────────────────────────────────────────────────────
             // A single popup is shared by every module of this bar.
 
-            Popup {
+            TooltipPopup {
                 id: tipPopup
-                barWindow: bar
-                property string tipText: ""
-
-                implicitWidth: tipLabel.implicitWidth + 20
-                implicitHeight: tipLabel.implicitHeight + 14
-
-                Text {
-                    id: tipLabel
-                    anchors.centerIn: parent
-                    text: tipPopup.tipText
-                    color: Theme.mainFg
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 13
-                }
             }
 
             // ── modules-left ────────────────────────────────────────────────
@@ -87,9 +78,7 @@ PanelWindow {
                 Cpu {}
                 Distro {}
                 Clock {}
-                DateModule {
-                    barRef: bar
-                }
+                DateModule {}
                 Network {}
                 Bluetooth {}
                 Updates {}
@@ -105,38 +94,10 @@ PanelWindow {
                 AlbumArt {}
                 Mpris {}
                 Volume {}
-                Backlight {
-                    barRef: bar
-                }
-                Battery {
-                    barRef: bar
-                }
-                PowerGroup {
-                    barRef: bar
-                }
+                Backlight {}
+                Battery {}
+                PowerGroup {}
             }
         }
     }
-
-    // The window of the bar. It is not known while the bar is built, so the
-    // tooltip is registered as soon as it shows up. Every bar has its own
-    // tooltip, so the tooltip of one output does not show up on another.
-    readonly property var barWindow: barContent.Window.window
-    property var registeredWindow: null
-
-    onBarWindowChanged: {
-        if (bar.registeredWindow)
-            Tooltip.unregister(bar.registeredWindow)
-        bar.registeredWindow = bar.barWindow
-        if (bar.barWindow)
-            Tooltip.register(bar.barWindow, tipPopup)
-    }
-
-    Component.onDestruction: {
-        if (bar.registeredWindow)
-            Tooltip.unregister(bar.registeredWindow)
-    }
-
-
-
 }

@@ -4,6 +4,6 @@ Label Label.qml
 Metric Metric.qml
 Module Module.qml
 Popup Popup.qml
+TooltipPopup TooltipPopup.qml
 singleton Icons Icons.qml
 singleton Theme Theme.qml
-singleton Tooltip Tooltip.qml

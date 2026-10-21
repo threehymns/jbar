@@ -15,9 +15,6 @@ Module {
     bg: Theme.battery
     minChars: 7
 
-    // The bar window, needed to anchor the profile menu.
-    property var barRef: null
-
     property int warningThreshold: 20
     property int criticalThreshold: 10
 
@@ -91,11 +88,7 @@ Module {
         return Math.floor(minutes / 60) + "h " + (minutes % 60) + "min"
     }
 
-    onClicked: {
-        profileMenu.visible = !profileMenu.visible
-        // the tooltip would sit on top of the menu
-        Tooltip.hide(root)
-    }
+    onClicked: root.togglePopup()
 
     visible: present
 
@@ -104,10 +97,7 @@ Module {
 
     // ── power profile menu ──────────────────────────────────────────────────
 
-    Popup {
-        id: profileMenu
-        barWindow: root.barRef
-        target: root
+    popup: Popup {
         implicitWidth: 180
         implicitHeight: 120
 
@@ -147,7 +137,7 @@ Module {
                         cursorShape: Qt.PointingHandCursor
                         onClicked: {
                             PowerProfiles.profile = entry.modelData.profile
-                            profileMenu.visible = false
+                            root.closePopup()
                         }
                     }
                 }

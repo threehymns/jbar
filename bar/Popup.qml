@@ -4,13 +4,11 @@ import Quickshell
 // Popup — a popup of the bar.
 //
 // A popup has to live inside a window, so the module that shows it owns it
-// and hands the bar window to it. The popup knows how to anchor itself
-// below its module and how it looks, so a module only has to fill it with
-// content.
+// and the popup finds the window through the module it is anchored to. The
+// popup knows how to anchor itself below its module and how it looks, so a
+// module only has to fill it with content.
 //
 //     Popup {
-//         barWindow: root.barRef
-//         target: root
 //         implicitWidth: 200
 //         implicitHeight: 100
 //         Text { anchors.centerIn: parent }
@@ -24,8 +22,9 @@ import Quickshell
 PopupWindow {
     id: popup
 
-    // The bar window the popup belongs to.
-    property var barWindow: null
+    // The window the popup belongs to. The popup takes it from the module
+    // it is anchored to, so a module does not have to hand it over.
+    readonly property var barWindow: target ? target.QsWindow.window : null
 
     // The module the popup is anchored to.
     property Module target: null

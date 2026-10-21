@@ -15,15 +15,12 @@ Module {
     bg: Theme.backlight
     minChars: 7
 
-    // The bar window, needed to anchor the slider popup.
-    property var barRef: null
-
     readonly property BacklightMetric metric: BacklightMetric {}
 
     // The poll that fills the metric.
     readonly property Poller poller: Poller { metric: root.metric }
 
-    onClicked: sliderPopup.visible = !sliderPopup.visible
+    onClicked: root.togglePopup()
     onScrolled: direction => {
         const step = 5
         root.setBrightness(root.metric.value + (direction > 0 ? step : -step))
@@ -38,10 +35,7 @@ Module {
 
     // ── brightness slider ───────────────────────────────────────────────────
 
-    Popup {
-        id: sliderPopup
-        barWindow: root.barRef
-        target: root
+    popup: Popup {
         radius: 16
         implicitWidth: 300
         implicitHeight: 48

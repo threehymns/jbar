@@ -13,9 +13,6 @@ import "../"
 DrawerGroup {
     id: root
 
-    // The bar window, needed to anchor the idle inhibitor.
-    property var barRef: null
-
     // Power button
     Module {
         id: power
@@ -49,7 +46,7 @@ DrawerGroup {
 
         IdleInhibitor {
             id: inhibitor
-            window: root.barRef
+            window: idle.barWindow
             enabled: idle.active
         }
     }

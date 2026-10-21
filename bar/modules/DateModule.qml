@@ -17,14 +17,11 @@ Module {
     minChars: 8
     dimOnHover: true
 
-    // The bar window, needed to anchor the calendar popup.
-    property var barRef: null
-
     property var now: new Date()
     property bool yearMode: true
 
     onClicked: root.yearMode = !root.yearMode
-    onHoveredEnter: calendarPopup.visible = true
+    onHoveredEnter: root.openPopup()
 
     iconText: Icons.calendar
     labelText: root.now ? Qt.formatDate(root.now, "dd-MM") : ""
@@ -36,10 +33,7 @@ Module {
         onTriggered: root.now = new Date()
     }
 
-    Popup {
-        id: calendarPopup
-        barWindow: root.barRef
-        target: root
+    popup: Popup {
         implicitWidth: calendar.implicitWidth + 20
         implicitHeight: calendar.implicitHeight + 20
 
