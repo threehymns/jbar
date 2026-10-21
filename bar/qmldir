@@ -1,4 +1,5 @@
 Bar Bar.qml
+DrawerGroup DrawerGroup.qml
 Label Label.qml
 Module Module.qml
 singleton Icons Icons.qml

@@ -11,28 +11,12 @@ import "../"
 // The group uses the waybar "drawer" option: the input device is hidden
 // under the output device and slides out to the left while the group is
 // hovered. The output device itself keeps its place.
-Item {
+DrawerGroup {
     id: root
-
-    property int duration: 150
-
-    // The group is open while one of its modules is hovered.
-    readonly property bool open: output.hovered || input.hovered
-
-    implicitWidth: output.width + (open ? input.width : 0)
-    implicitHeight: 31
-
-    Behavior on implicitWidth {
-        NumberAnimation {
-            duration: root.duration
-            easing.type: Easing.OutCubic
-        }
-    }
 
     // Output device
     Module {
         id: output
-        x: root.width - output.width
 
         bg: Theme.volume
         minChars: 7
@@ -60,46 +44,25 @@ Item {
         labelText: output.volume + "%"
     }
 
-    // The drawer the input device slides out of.
-    Item {
-        id: drawer
-        x: 0
-        width: root.open ? input.width : 0
-        height: 31
-        clip: true
+    // The device that slides out of the group.
+    hidden: Module {
+        id: input
 
-        Behavior on width {
-            NumberAnimation {
-                duration: root.duration
-                easing.type: Easing.OutCubic
-            }
-        }
+        bg: Theme.volume
+        minChars: 7
+        stateDim: input.sourceMuted
 
-        // Input device
-        Module {
-            id: input
-            x: 0
+        readonly property var source: Pipewire.defaultAudioSource
+        readonly property bool sourceMuted: source !== null && source.audio !== null
+            && source.audio.muted
+        readonly property int volume: source !== null && source.audio !== null
+            ? Math.round(source.audio.volume * 100) : 0
 
-            bg: Theme.volume
-            minChars: 7
-            stateDim: input.sourceMuted
-            // the hidden device must not swallow the events of the modules
-            // next to it
-            interactive: root.open
-            visible: root.open
+        onClicked: root.setSourceMuted()
+        onScrolled: direction => root.changeSourceVolume(direction)
 
-            readonly property var source: Pipewire.defaultAudioSource
-            readonly property bool sourceMuted: source !== null && source.audio !== null
-                && source.audio.muted
-            readonly property int volume: source !== null && source.audio !== null
-                ? Math.round(source.audio.volume * 100) : 0
-
-            onClicked: root.setSourceMuted()
-            onScrolled: direction => root.changeSourceVolume(direction)
-
-            iconText: input.sourceMuted ? Icons.micMuted : Icons.mic
-            labelText: input.volume + "%"
-        }
+        iconText: input.sourceMuted ? Icons.micMuted : Icons.mic
+        labelText: input.volume + "%"
     }
 
     // Tracking the nodes keeps their audio interface bound, without it the

@@ -10,31 +10,15 @@ import "../"
 // The group uses the waybar "drawer" option: the idle inhibitor is hidden
 // under the power button and slides out to the left while the group is
 // hovered. The power button itself keeps its place.
-Item {
+DrawerGroup {
     id: root
-
-    property int duration: 150
 
     // The bar window, needed to anchor the idle inhibitor.
     property var barRef: null
 
-    // The group is open while one of its modules is hovered.
-    readonly property bool open: power.hovered || idle.hovered
-
-    implicitWidth: power.width + (open ? idle.width : 0)
-    implicitHeight: 31
-
-    Behavior on implicitWidth {
-        NumberAnimation {
-            duration: root.duration
-            easing.type: Easing.OutCubic
-        }
-    }
-
     // Power button
     Module {
         id: power
-        x: root.width - power.width
 
         bg: "transparent"
         // #custom-power { padding: 0 19px 0 16px; font-size: 18px; }
@@ -49,43 +33,24 @@ Item {
         iconPixelSize: 18
     }
 
-    // The drawer the idle inhibitor slides out of.
-    Item {
-        id: drawer
-        x: 0
-        width: root.open ? idle.width : 0
-        height: 31
-        clip: true
+    // The idle inhibitor slides out of the group.
+    hidden: Module {
+        id: idle
 
-        Behavior on width {
-            NumberAnimation {
-                duration: root.duration
-                easing.type: Easing.OutCubic
-            }
-        }
+        bg: Theme.mainBg
+        minChars: 3
+        stateDim: !idle.active
 
-        // Idle inhibitor
-        Module {
-            id: idle
-            x: 0
+        property bool active: false
 
-            bg: Theme.mainBg
-            minChars: 3
-            stateDim: !idle.active
-            interactive: root.open
-            visible: root.open
+        onClicked: idle.active = !idle.active
 
-            property bool active: false
+        iconText: idle.active ? Icons.idleActive : Icons.idleInactive
 
-            onClicked: idle.active = !idle.active
-
-            iconText: idle.active ? Icons.idleActive : Icons.idleInactive
-
-            IdleInhibitor {
-                id: inhibitor
-                window: root.barRef
-                enabled: idle.active
-            }
+        IdleInhibitor {
+            id: inhibitor
+            window: root.barRef
+            enabled: idle.active
         }
     }
 }
