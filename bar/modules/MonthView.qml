@@ -4,7 +4,7 @@ import "../"
 
 // MonthView — a single month of the waybar clock calendar.
 //
-// The colours are the ones configured in the waybar calendar format.
+// The colours are the ones of the theme of the bar.
 ColumnLayout {
     id: monthRoot
 
@@ -47,11 +47,10 @@ ColumnLayout {
         return result
     }
 
-    Text {
+    Label {
         text: monthRoot.monthNames[monthRoot.month]
-        color: "#ffead3"
-        font.family: Theme.fontFamily
-        font.pixelSize: 13
+        color: Theme.mainFg
+        pixelSize: 13
         font.bold: true
     }
 
@@ -60,12 +59,11 @@ ColumnLayout {
 
         Repeater {
             model: monthRoot.weekdayNames
-            delegate: Text {
+            delegate: Label {
                 required property string modelData
                 text: modelData
-                color: "#ffcc66"
-                font.family: Theme.fontFamily
-                font.pixelSize: 10
+                color: Theme.yellow
+                pixelSize: 10
                 Layout.preferredWidth: 16
                 horizontalAlignment: Text.AlignHCenter
             }
@@ -89,24 +87,22 @@ ColumnLayout {
                 readonly property bool isToday: cell.modelData.day === monthRoot.todayDay
                     && monthRoot.currentMonth
 
-                Text {
+                Label {
                     anchors.centerIn: parent
                     visible: cell.modelData.day > 0
                     text: cell.modelData.day
-                    color: cell.isToday ? "#ff6699" : "#ecc6d9"
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 10
+                    color: cell.isToday ? Theme.purple : Theme.fg2
+                    pixelSize: 10
                     font.underline: cell.isToday
                     font.bold: cell.isToday
                 }
 
-                Text {
+                Label {
                     anchors.centerIn: parent
                     visible: cell.modelData.week > 0
                     text: cell.modelData.week
-                    color: "#99ffdd"
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 9
+                    color: Theme.aqua
+                    pixelSize: 9
                 }
             }
         }
