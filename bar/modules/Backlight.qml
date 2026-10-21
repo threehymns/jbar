@@ -3,11 +3,12 @@ import QtQuick.Controls
 import Quickshell
 import "../"
 import "../adapters/"
+import "../metrics/"
 
 // Backlight — port of the waybar "backlight" module.
 //
-// Shows the screen brightness and opens a slider when clicked. Scrolling
-// changes the brightness in steps of 5%, like the waybar backlight script.
+// The metric of the brightness knows the command, the parsing and the scale
+// of the glyphs, the module only draws it and scrolls the brightness.
 Module {
     id: root
 
@@ -17,39 +18,23 @@ Module {
     // The bar window, needed to anchor the slider popup.
     property var barRef: null
 
-    readonly property Metric metric: Metric {
-        parse: output => {
-            const value = parseInt(output.trim())
-            return isNaN(value) ? null : value
-        }
-        // waybar splits the brightness into seven steps
-        glyphs: Icons.backlight
-        scaleMax: 100
-    }
+    readonly property BacklightMetric metric: BacklightMetric {}
 
-    readonly property Poller poller: Poller {
-        metric: root.metric
-        command: ["sh", "-c",
-            "brightnessctl -m 2>/dev/null | grep -oE '[0-9]+%' | tr -d '%' | head -1"]
-        interval: 2000
-    }
-
-    readonly property int percent: metric.value
+    // The poll that fills the metric.
+    readonly property Poller poller: Poller { metric: root.metric }
 
     onClicked: sliderPopup.visible = !sliderPopup.visible
     onScrolled: direction => {
         const step = 5
-        setBrightness(root.percent + (direction > 0 ? step : -step))
+        root.setBrightness(root.metric.value + (direction > 0 ? step : -step))
     }
 
     function setBrightness(value) {
-        const clamped = Math.max(0, Math.min(100, Math.round(value)))
-        Quickshell.execDetached(["sh", "-c",
-            "brightnessctl set " + clamped + "% >/dev/null 2>&1"])
+        Quickshell.execDetached(root.metric.setCommand(value))
     }
 
-    iconText: metric.glyph
-    labelText: root.percent + "%"
+    iconText: root.metric.glyph
+    labelText: root.metric.value + "%"
 
     // ── brightness slider ───────────────────────────────────────────────────
 
@@ -81,7 +66,7 @@ Module {
                 from: 0
                 to: 100
                 stepSize: 1
-                value: root.percent
+                value: root.metric.value
                 onMoved: root.setBrightness(value)
 
                 handle: Rectangle {

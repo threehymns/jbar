@@ -12,11 +12,14 @@ QtObject {
     // The metric the poll fills.
     property var metric: null
 
-    // The command that reads the value.
-    property var command: []
+    // The command that reads the value. The metric of a system knows its
+    // own command, so a module only hands the metric over.
+    property var command: root.metric && root.metric.command
+        ? root.metric.command : []
 
     // How often the command runs, in milliseconds.
-    property int interval: 10000
+    property int interval: root.metric && root.metric.interval
+        ? root.metric.interval : 10000
 
     // A plain object has no default property for children, so the process
     // and the timer are held by a property.

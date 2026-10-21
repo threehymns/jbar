@@ -1,11 +1,12 @@
 import QtQuick
 import "../"
 import "../adapters/"
+import "../metrics/"
 
 // Updates — port of the waybar "custom/update" module.
 //
-// Counts the pending system updates once an hour and opens the update
-// helper when clicked.
+// The metric of the updates knows the command and the parsing, the module
+// only draws it.
 Module {
     id: root
 
@@ -16,23 +17,13 @@ Module {
     minChars: 1
     dimOnHover: true
 
-    readonly property Metric metric: Metric {
-        parse: output => {
-            const value = parseInt(output.trim())
-            return isNaN(value) ? null : value
-        }
-    }
+    readonly property UpdatesMetric metric: UpdatesMetric {}
 
-    readonly property Poller poller: Poller {
-        metric: root.metric
-        command: ["sh", "-c", "checkupdates 2>/dev/null | wc -l"]
-        interval: 3600000
-    }
-
-    readonly property int count: metric.value
+    // The poll that fills the metric.
+    readonly property Poller poller: Poller { metric: root.metric }
 
     onClicked: Quickshell.execDetached(["kitty", "-T", "Updates", "yay", "-Syua"])
 
     iconText: Icons.update
-    labelText: root.count + ""
+    labelText: root.metric.value + ""
 }
