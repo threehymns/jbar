@@ -21,6 +21,19 @@ Module {
     property int warningThreshold: 20
     property int criticalThreshold: 10
 
+    // The value comes from the device, the metric owns the states and the
+    // glyphs of it.
+    readonly property Metric metric: Metric {
+        value: root.percentage
+        // waybar splits the charge into ten steps
+        glyphs: Icons.battery
+        scaleMax: 100
+        warningThreshold: root.warningThreshold
+        criticalThreshold: root.criticalThreshold
+        // the battery is bad when it is empty, not when it is full
+        highIsBad: false
+    }
+
     readonly property var device: {
         if (!UPower.devices)
             return null
@@ -52,15 +65,13 @@ Module {
     readonly property bool discharging: device !== null
         && device.state === UPowerDeviceState.Discharging
 
-    readonly property bool warning: !charging && percentage <= warningThreshold
-    readonly property bool critical: !charging && percentage <= criticalThreshold
+    readonly property bool warning: !charging && metric.warning
+    readonly property bool critical: !charging && metric.critical
 
     readonly property string icon: {
         if (root.charging)
             return Icons.batteryCharging
-        // waybar splits the charge into ten steps
-        const index = Math.min(Icons.battery.length - 1, Math.floor(root.percentage / 10))
-        return Icons.battery[index]
+        return root.metric.glyph
     }
 
     fg: root.critical ? Theme.critical : (root.warning ? Theme.warning

@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell.Services.Mpris
 import "../"
+import "../adapters/"
 
 // Mpris — port of the waybar "mpris" module.
 //

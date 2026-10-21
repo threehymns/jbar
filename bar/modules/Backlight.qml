@@ -1,8 +1,8 @@
 import QtQuick
 import QtQuick.Controls
 import Quickshell
-import Quickshell.Io
 import "../"
+import "../adapters/"
 
 // Backlight — port of the waybar "backlight" module.
 //
@@ -17,13 +17,24 @@ Module {
     // The bar window, needed to anchor the slider popup.
     property var barRef: null
 
-    property int percent: 0
-
-    readonly property string icon: {
+    readonly property Metric metric: Metric {
+        parse: output => {
+            const value = parseInt(output.trim())
+            return isNaN(value) ? null : value
+        }
         // waybar splits the brightness into seven steps
-        const index = Math.min(Icons.backlight.length - 1, Math.floor(root.percent / 14))
-        return Icons.backlight[index]
+        glyphs: Icons.backlight
+        scaleMax: 100
     }
+
+    readonly property Poller poller: Poller {
+        metric: root.metric
+        command: ["sh", "-c",
+            "brightnessctl -m 2>/dev/null | grep -oE '[0-9]+%' | tr -d '%' | head -1"]
+        interval: 2000
+    }
+
+    readonly property int percent: metric.value
 
     onClicked: sliderPopup.visible = !sliderPopup.visible
     onHoveredLeave: sliderPopup.visible = false
@@ -38,7 +49,7 @@ Module {
             "brightnessctl set " + clamped + "% >/dev/null 2>&1"])
     }
 
-    iconText: root.icon
+    iconText: metric.glyph
     labelText: root.percent + "%"
 
     // ── brightness slider ───────────────────────────────────────────────────
@@ -72,11 +83,10 @@ Module {
                 anchors.rightMargin: 14
                 spacing: 10
 
-                Text {
+                Label {
                     anchors.verticalCenter: parent.verticalCenter
-                    text: root.icon
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSize
+                    text: root.metric.glyph
+                    glyph: true
                     color: Theme.mainFg
                 }
 
@@ -118,28 +128,5 @@ Module {
                 }
             }
         }
-    }
-
-    // ── polling ─────────────────────────────────────────────────────────────
-
-    Process {
-        id: backlightProc
-        command: ["sh", "-c", "brightnessctl -m 2>/dev/null | grep -oE '[0-9]+%' | tr -d '%' | head -1"]
-        running: true
-
-        stdout: StdioCollector {
-            onStreamFinished: {
-                const value = parseInt(text.trim())
-                if (!isNaN(value))
-                    root.percent = value
-            }
-        }
-    }
-
-    Timer {
-        interval: 2000
-        running: true
-        repeat: true
-        onTriggered: backlightProc.running = true
     }
 }

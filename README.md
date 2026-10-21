@@ -8,15 +8,21 @@ same order, the same icons, the same colours and the same click, scroll and
 hover behaviour.
 
 ```
-shell.qml          entry point
-bar/Bar.qml        the panel and the module layout
-bar/Module.qml     base class of every module (background, padding, mouse)
-bar/Theme.qml      colours, fonts and metrics (theme.css)
-bar/Icons.qml      the Nerd Font glyphs of the waybar config
-bar/Niri.qml       niri IPC (workspaces, focused window)
-bar/Player.qml     the current MPRIS player
-bar/Tooltip.qml    controller for the shared tooltip popup
-bar/modules/       one file per module
+shell.qml            entry point
+bar/Bar.qml          the panel and the module layout
+bar/Module.qml       base class of every module (background, padding, mouse)
+bar/Theme.qml        colours, fonts and metrics (theme.css)
+bar/Icons.qml        the Nerd Font glyphs of the waybar config
+bar/Label.qml        a text run with the typography of the bar
+bar/Metric.qml       a number of the system, with its states and its glyphs
+bar/DrawerGroup.qml  a group of two modules, the second one hidden
+bar/Tooltip.qml      controller for the shared tooltip popup
+bar/adapters/        the things that talk to the system
+  Niri.qml           niri IPC (workspaces, focused window)
+  Player.qml         the current MPRIS player
+  Poller.qml         reads the value of a metric with a command
+bar/modules/         one file per module
+tests/               the tests of the headless modules
 ```
 
 ## Running
@@ -34,6 +40,15 @@ property var outputs: ["eDP-1", "HDMI-A-1", "DP-2"]
 ```
 
 Set it to an empty list to show the bar on every output.
+
+## Tests
+
+The modules that hold logic are plain objects without any I/O, so they can
+be tested without a bar:
+
+```bash
+/usr/lib/qt6/bin/qmltestrunner -input tests
+```
 
 ## Module mapping
 

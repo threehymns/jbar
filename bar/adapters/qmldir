@@ -1,0 +1,3 @@
+singleton Niri Niri.qml
+singleton Player Player.qml
+Poller Poller.qml

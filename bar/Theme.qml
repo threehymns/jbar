@@ -1,10 +1,10 @@
 pragma Singleton
 import QtQuick
-import Quickshell
+import QtQml
 
 // Theme — colours, fonts and metrics, ported 1:1 from the waybar config
 // (~/.config/waybar/theme.css + styles/fonts.css).
-Singleton {
+QtObject {
     id: theme
 
     // ── gruvbox-dark palette ────────────────────────────────────────────────
@@ -82,8 +82,7 @@ Singleton {
     // The advance width of a space in the bar font. The waybar formats
     // separate the icon and the value with a space, so the modules use this
     // to keep the same gap between the two.
-    TextMetrics {
-        id: spaceMetrics
+    property TextMetrics spaceMetrics: TextMetrics {
         font.family: theme.fontFamily
         font.pixelSize: theme.fontSize
         text: " "

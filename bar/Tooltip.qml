@@ -1,6 +1,6 @@
 pragma Singleton
 import QtQuick
-import Quickshell
+import QtQml
 
 // Tooltip — controller for the bar's single tooltip popup.
 //
@@ -9,7 +9,7 @@ import Quickshell
 //
 //     Tooltip.show(item, "some text")
 //     Tooltip.hide()
-Singleton {
+QtObject {
     id: ctrl
 
     // The PopupWindow, assigned by Bar.qml.

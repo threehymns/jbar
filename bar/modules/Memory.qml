@@ -1,6 +1,6 @@
 import QtQuick
-import Quickshell.Io
 import "../"
+import "../adapters/"
 
 // Memory — port of the waybar "memory" module.
 //
@@ -15,12 +15,35 @@ Module {
     property int warningThreshold: 75
     property int criticalThreshold: 90
 
-    property real totalBytes: 0
-    property real usedBytes: 0
+    readonly property Metric metric: Metric {
+        parse: output => {
+            const parts = output.trim().split(/\s+/)
+            const total = parseInt(parts[0])
+            const available = parseInt(parts[1])
+            if (isNaN(total) || isNaN(available))
+                return null
+            return { total: total * 1024, used: (total - available) * 1024 }
+        }
+        measure: (sample, previous) => sample.total > 0
+            ? Math.round(100 * sample.used / sample.total)
+            : null
+        warningThreshold: root.warningThreshold
+        criticalThreshold: root.criticalThreshold
+    }
 
-    readonly property int percentage: totalBytes > 0 ? Math.round(100 * usedBytes / totalBytes) : 0
-    readonly property bool warning: percentage >= warningThreshold
-    readonly property bool critical: percentage >= criticalThreshold
+    readonly property Poller poller: Poller {
+        metric: root.metric
+        command: ["sh", "-c",
+            "awk '/^MemTotal:/{t=$2} /^MemAvailable:/{a=$2} END{print t, a}' /proc/meminfo"]
+        interval: 10000
+    }
+
+    readonly property real totalBytes: metric.sample ? metric.sample.total : 0
+    readonly property real usedBytes: metric.sample ? metric.sample.used : 0
+
+    readonly property int percentage: metric.value
+    readonly property bool warning: metric.warning
+    readonly property bool critical: metric.critical
 
     fg: critical ? Theme.critical : (warning ? Theme.warning : Theme.mainFg)
     tip: "Memory Used: " + (usedBytes / 1073741824).toFixed(1) + "/"
@@ -29,29 +52,4 @@ Module {
     // the waybar config swaps the icon for the warning/critical variants
     iconText: root.warning ? Icons.memoryWarning : Icons.memory
     labelText: root.percentage + "%"
-
-    Process {
-        id: memProc
-        command: ["sh", "-c", "awk '/^MemTotal:/{t=$2} /^MemAvailable:/{a=$2} END{print t, a}' /proc/meminfo"]
-        running: true
-
-        stdout: StdioCollector {
-            onStreamFinished: {
-                const parts = text.trim().split(/\s+/)
-                const total = parseInt(parts[0])
-                const available = parseInt(parts[1])
-                if (isNaN(total) || isNaN(available))
-                    return
-                root.totalBytes = total * 1024
-                root.usedBytes = (total - available) * 1024
-            }
-        }
-    }
-
-    Timer {
-        interval: 10000
-        running: true
-        repeat: true
-        onTriggered: memProc.running = true
-    }
 }

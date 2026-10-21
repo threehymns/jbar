@@ -27,14 +27,18 @@ DrawerGroup {
         readonly property int volume: sink !== null && sink.audio !== null
             ? Math.round(sink.audio.volume * 100) : 0
 
+        // waybar picks the icon from the "default" icon list, the volume
+        // is split into three ranges
+        readonly property Metric metric: Metric {
+            value: output.volume
+            glyphs: [Icons.volumeLow, Icons.volumeHigh, Icons.volumeOff]
+            scaleMax: 100
+        }
+
         readonly property string icon: {
             if (output.sinkMuted)
                 return Icons.volumeMute
-            // waybar picks the icon from the "default" icon list, the volume
-            // is split into three ranges
-            const scale = [Icons.volumeLow, Icons.volumeHigh, Icons.volumeOff]
-            const index = Math.min(scale.length - 1, Math.floor(output.volume / 33))
-            return scale[index]
+            return output.metric.glyph
         }
 
         onClicked: root.setSinkMuted()

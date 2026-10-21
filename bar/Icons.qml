@@ -1,12 +1,12 @@
 pragma Singleton
 import QtQuick
-import Quickshell
+import QtQml
 
 // Icons — the Nerd Font glyphs used by the waybar config. The codepoints are
 // unchanged from the original modules, so the bar renders exactly the same
 // glyphs. They are written literally, as \u escapes are error prone for the
 // private use area.
-Singleton {
+QtObject {
     // workspaces
     readonly property string workspaceActive: "" // nf-md-circle_slash
     readonly property string workspaceDefault: "" // nf-md-circle_outline

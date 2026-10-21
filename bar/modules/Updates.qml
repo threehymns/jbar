@@ -1,7 +1,6 @@
 import QtQuick
-import Quickshell
-import Quickshell.Io
 import "../"
+import "../adapters/"
 
 // Updates — port of the waybar "custom/update" module.
 //
@@ -17,31 +16,24 @@ Module {
     minChars: 1
     dimOnHover: true
 
-    property int count: 0
+    readonly property Metric metric: Metric {
+        parse: output => {
+            const value = parseInt(output.trim())
+            return isNaN(value) ? null : value
+        }
+    }
+
+    readonly property Poller poller: Poller {
+        metric: root.metric
+        command: ["sh", "-c", "checkupdates 2>/dev/null | wc -l"]
+        interval: 3600000
+    }
+
+    readonly property int count: metric.value
     readonly property bool visibleCount: count > 0
 
     onClicked: Quickshell.execDetached(["kitty", "-T", "Updates", "yay", "-Syua"])
 
     iconText: Icons.update
     labelText: root.count + ""
-
-    Process {
-        id: updateProc
-        command: ["sh", "-c", "checkupdates 2>/dev/null | wc -l"]
-        running: true
-
-        stdout: StdioCollector {
-            onStreamFinished: {
-                const value = parseInt(text.trim())
-                root.count = isNaN(value) ? 0 : value
-            }
-        }
-    }
-
-    Timer {
-        interval: 3600000
-        running: true
-        repeat: true
-        onTriggered: updateProc.running = true
-    }
 }

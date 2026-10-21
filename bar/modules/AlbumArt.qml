@@ -1,5 +1,6 @@
 import QtQuick
 import "../"
+import "../adapters/"
 
 // AlbumArt — port of the waybar "image#album-art" module.
 //

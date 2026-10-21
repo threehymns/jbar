@@ -1,9 +1,8 @@
 Bar Bar.qml
 DrawerGroup DrawerGroup.qml
 Label Label.qml
+Metric Metric.qml
 Module Module.qml
 singleton Icons Icons.qml
-singleton Niri Niri.qml
-singleton Player Player.qml
 singleton Theme Theme.qml
 singleton Tooltip Tooltip.qml

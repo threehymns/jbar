@@ -1,6 +1,6 @@
 import QtQuick
-import Quickshell.Io
 import "../"
+import "../adapters/"
 
 // Temperature — port of the waybar "temperature" module.
 //
@@ -17,43 +17,30 @@ Module {
     // critical-threshold (°F, the unit the module is displayed in)
     property int criticalThreshold: 194
 
-    property real celsius: 0
+    readonly property Metric metric: Metric {
+        parse: output => {
+            const value = parseInt(output)
+            return isNaN(value) ? null : value / 1000
+        }
+        // the scale of the icons covers the critical threshold
+        scaleMax: root.criticalThreshold
+        glyphs: Icons.temperature
+    }
+
+    readonly property Poller poller: Poller {
+        metric: root.metric
+        command: ["sh", "-c", "cat /sys/class/thermal/thermal_zone"
+            + root.thermalZone + "/temp 2>/dev/null | head -1"]
+        interval: 10000
+    }
+
+    readonly property real celsius: metric.value
     readonly property int fahrenheit: Math.round(celsius * 1.8 + 32)
     readonly property bool critical: fahrenheit >= criticalThreshold
-
-    // waybar picks the icon from the temperature thresholds, using the
-    // critical threshold as the upper bound of the scale.
-    readonly property string icon: {
-        const scale = Icons.temperature
-        const divisor = Math.max(1, Math.floor(criticalThreshold / scale.length))
-        const index = Math.max(0, Math.min(scale.length - 1, Math.floor(celsius / divisor)))
-        return scale[index]
-    }
 
     fg: critical ? Theme.critical : Theme.mainFg
     tip: "Temperature in Fahrenheit: " + fahrenheit + "°F"
 
-    iconText: root.critical ? Icons.tempCritical : root.icon
-    labelText: root.fahrenheit + "°F"
-
-    Process {
-        id: tempProc
-        command: ["sh", "-c", "cat /sys/class/thermal/thermal_zone" + root.thermalZone + "/temp 2>/dev/null | head -1"]
-        running: true
-
-        stdout: StdioCollector {
-            onStreamFinished: {
-                const value = parseInt(text)
-                if (!isNaN(value))
-                    root.celsius = value / 1000
-            }
-        }
-    }
-
-    Timer {
-        interval: 10000
-        running: true
-        repeat: true
-        onTriggered: tempProc.running = true
-    }
+    iconText: critical ? Icons.tempCritical : metric.glyph
+    labelText: fahrenheit + "°F"
 }

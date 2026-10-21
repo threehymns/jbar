@@ -1,5 +1,6 @@
 import QtQuick
 import "../"
+import "../adapters/"
 
 // Workspaces — port of the waybar "niri/workspaces" module.
 //

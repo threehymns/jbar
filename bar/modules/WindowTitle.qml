@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import "../"
+import "../adapters/"
 
 // WindowTitle — port of the waybar "niri/window" module.
 //
