@@ -26,20 +26,9 @@ Module {
     tip: "Memory Used: " + (usedBytes / 1073741824).toFixed(1) + "/"
         + (totalBytes / 1073741824).toFixed(1) + " GiB"
 
-    Text {
-        // the waybar config swaps the icon for the warning/critical variants
-        text: root.warning ? Icons.memoryWarning : Icons.memory
-        font.family: Theme.iconFont
-        font.pixelSize: Theme.fontSize
-        color: root.labelColor
-    }
-
-    Text {
-        text: " " + root.percentage + "%"
-        font.family: Theme.fontFamily
-        font.pixelSize: Theme.fontSize
-        color: root.labelColor
-    }
+    // the waybar config swaps the icon for the warning/critical variants
+    iconText: root.warning ? Icons.memoryWarning : Icons.memory
+    labelText: root.percentage + "%"
 
     Process {
         id: memProc

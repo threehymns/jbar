@@ -22,19 +22,8 @@ Module {
 
     onClicked: Quickshell.execDetached(["kitty", "-T", "Updates", "yay", "-Syua"])
 
-    Text {
-        text: Icons.update
-        font.family: Theme.iconFont
-        font.pixelSize: Theme.fontSize
-        color: root.labelColor
-    }
-
-    Text {
-        text: " " + root.count
-        font.family: Theme.fontFamily
-        font.pixelSize: Theme.fontSize
-        color: root.labelColor
-    }
+    iconText: Icons.update
+    labelText: root.count + ""
 
     Process {
         id: updateProc

@@ -27,19 +27,8 @@ Module {
     onHoveredEnter: calendarPopup.visible = true
     onHoveredLeave: calendarPopup.visible = false
 
-    Text {
-        text: Icons.calendar
-        font.family: Theme.iconFont
-        font.pixelSize: Theme.fontSize
-        color: root.labelColor
-    }
-
-    Text {
-        text: root.now ? " " + Qt.formatDate(root.now, "dd-MM") : ""
-        font.family: Theme.fontFamily
-        font.pixelSize: Theme.fontSize
-        color: root.labelColor
-    }
+    iconText: Icons.calendar
+    labelText: root.now ? Qt.formatDate(root.now, "dd-MM") : ""
 
     Timer {
         interval: 60000

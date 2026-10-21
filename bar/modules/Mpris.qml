@@ -54,29 +54,23 @@ Module {
             root.player.previous()
     }
 
-    Text {
+    Label {
         text: root.icon
-        font.family: Theme.iconFont
-        font.pixelSize: Theme.fontSize
+        glyph: true
         color: root.labelColor
     }
 
-    Text {
+    Label {
         text: root.title
-        font.family: Theme.fontFamily
-        font.pixelSize: Theme.fontSize
         color: root.labelColor
-        elide: Text.ElideRight
-        width: Math.min(implicitWidth, 40 * Theme.charWidth)
+        maxChars: 40
     }
 
-    Text {
+    Label {
         // <span size="x-small" alpha="60%">- {artist}</span>
         text: root.artist === "" ? "" : "- " + root.artist
-        font.family: Theme.fontFamily
-        font.pixelSize: 11
-        color: Qt.rgba(Theme.mainFg.r, Theme.mainFg.g, Theme.mainFg.b, 0.6)
-        elide: Text.ElideRight
-        width: Math.min(implicitWidth, 25 * Theme.charWidth)
+        color: Theme.dimFg
+        pixelSize: 11
+        maxChars: 25
     }
 }

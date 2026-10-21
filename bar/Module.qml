@@ -9,6 +9,9 @@ import QtQuick
 // The label colour follows the waybar states.css rules:
 //   * `dimOnHover` dims the label while the module is hovered
 //   * `stateDim` keeps the label dimmed (muted volume, paused player, …)
+//
+// The typography lives here as well: a module names its glyph and its value
+// and the module draws them, so no module spells out a font again.
 Rectangle {
     id: root
 
@@ -43,6 +46,21 @@ Rectangle {
     // Keep the label dimmed regardless of hover (states.css inactive rules).
     property bool stateDim: false
 
+    // ── the content of the module ─────────────────────────────────────────
+    // The glyph of the module, drawn in the Nerd Font.
+    property string iconText: ""
+    // An image drawn in the icon slot instead of a glyph (the icon of the
+    // focused window, the cover art of the player).
+    property string iconImage: ""
+    // The value of the module, drawn in the bar font.
+    property string labelText: ""
+    // The size of the icon slot in pixels.
+    property int iconPixelSize: Theme.fontSize
+    // The size of the value in pixels.
+    property int labelPixelSize: Theme.fontSize
+    // Elide the value after this many characters. 0 keeps it whole.
+    property int labelMaxChars: 0
+
     signal clicked()
     signal middleClicked()
     signal rightClicked()
@@ -65,7 +83,8 @@ Rectangle {
         color: root.hoverBackground && root.hovered ? Theme.hoverBg : "transparent"
     }
 
-    // Content of the module. Modules add their labels here.
+    // Content of the module. Modules that need more than the icon and the
+    // value add their own items here.
     default property alias content: contentRow.data
 
     Row {
@@ -74,6 +93,57 @@ Rectangle {
         anchors.left: parent.left
         anchors.leftMargin: root.padLeft
         spacing: root.contentSpacing
+
+        // The icon and the value. The waybar formats separate the two with
+        // a space, so the gap between them is the width of one.
+        Row {
+            id: labelRow
+            visible: root.iconText !== "" || root.iconImage !== "" || root.labelText !== ""
+            spacing: Theme.labelSpacing
+
+            // The icon slot: a glyph, or an image.
+            Item {
+                id: iconSlot
+                visible: root.iconText !== "" || root.iconImage !== ""
+                width: root.iconImage !== "" ? root.iconPixelSize : iconLabel.width
+                height: root.iconImage !== "" ? root.iconPixelSize : iconLabel.height
+
+                Label {
+                    id: iconLabel
+                    anchors.centerIn: parent
+                    visible: root.iconText !== ""
+                    text: root.iconText
+                    glyph: true
+                    pixelSize: root.iconPixelSize
+                    color: root.labelColor
+                }
+
+                Image {
+                    anchors.centerIn: parent
+                    visible: root.iconImage !== ""
+                    source: root.iconImage
+                    width: root.iconPixelSize
+                    height: root.iconPixelSize
+                    sourceSize.width: root.iconPixelSize * 3
+                    sourceSize.height: root.iconPixelSize * 3
+                    fillMode: Image.PreserveAspectFit
+                    smooth: true
+                    // the art changes while the url stays the same
+                    cache: false
+                    asynchronous: true
+                }
+            }
+
+            // The value of the module.
+            Label {
+                id: valueLabel
+                visible: root.labelText !== ""
+                text: root.labelText
+                pixelSize: root.labelPixelSize
+                maxChars: root.labelMaxChars
+                color: root.labelColor
+            }
+        }
     }
 
     MouseArea {

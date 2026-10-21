@@ -44,17 +44,6 @@ Module {
             root.player.previous()
     }
 
-    Image {
-        source: root.artUrl
-        visible: root.artUrl !== ""
-        width: 24
-        height: 24
-        sourceSize.width: 96
-        sourceSize.height: 96
-        fillMode: Image.PreserveAspectFit
-        smooth: true
-        // the art changes while the url stays the same
-        cache: false
-        asynchronous: true
-    }
+    iconImage: root.artUrl
+    iconPixelSize: 24
 }

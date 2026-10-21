@@ -33,19 +33,8 @@ Module {
     fg: critical ? Theme.critical : Theme.mainFg
     tip: "Temperature in Fahrenheit: " + fahrenheit + "°F"
 
-    Text {
-        text: root.critical ? Icons.tempCritical : root.icon
-        font.family: Theme.iconFont
-        font.pixelSize: Theme.fontSize
-        color: root.labelColor
-    }
-
-    Text {
-        text: " " + root.fahrenheit + "°F"
-        font.family: Theme.fontFamily
-        font.pixelSize: Theme.fontSize
-        color: root.labelColor
-    }
+    iconText: root.critical ? Icons.tempCritical : root.icon
+    labelText: root.fahrenheit + "°F"
 
     Process {
         id: tempProc

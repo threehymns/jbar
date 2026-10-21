@@ -36,6 +36,8 @@ Singleton {
     readonly property color mainFg: fg1
     readonly property color hoverBg: bg1
     readonly property color hoverFg: Qt.rgba(fg1.r, fg1.g, fg1.b, 0.75)
+    // The dimmed colour of a secondary label (the mpris artist).
+    readonly property color dimFg: Qt.rgba(fg1.r, fg1.g, fg1.b, 0.6)
     // GTK's shade(main-bg, 0.5)
     readonly property color outline: "#0e1010"
 
@@ -76,6 +78,18 @@ Singleton {
     // about 7.2 pixels, so the same value is used here to turn the
     // min-lengths of the waybar config into pixels.
     readonly property real charWidth: 7.2
+
+    // The advance width of a space in the bar font. The waybar formats
+    // separate the icon and the value with a space, so the modules use this
+    // to keep the same gap between the two.
+    TextMetrics {
+        id: spaceMetrics
+        font.family: theme.fontFamily
+        font.pixelSize: theme.fontSize
+        text: " "
+    }
+
+    readonly property real labelSpacing: spaceMetrics.advanceWidth
 
     // Minimum width (px) for a label padded to `chars` characters.
     function minWidth(chars) {

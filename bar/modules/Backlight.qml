@@ -38,19 +38,8 @@ Module {
             "brightnessctl set " + clamped + "% >/dev/null 2>&1"])
     }
 
-    Text {
-        text: root.icon
-        font.family: Theme.iconFont
-        font.pixelSize: Theme.fontSize
-        color: root.labelColor
-    }
-
-    Text {
-        text: " " + root.percent + "%"
-        font.family: Theme.fontFamily
-        font.pixelSize: Theme.fontSize
-        color: root.labelColor
-    }
+    iconText: root.icon
+    labelText: root.percent + "%"
 
     // ── brightness slider ───────────────────────────────────────────────────
 

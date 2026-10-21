@@ -21,19 +21,8 @@ Module {
 
     fg: critical ? Theme.critical : (warning ? Theme.warning : Theme.mainFg)
 
-    Text {
-        text: Icons.cpu
-        font.family: Theme.iconFont
-        font.pixelSize: Theme.fontSize
-        color: root.labelColor
-    }
-
-    Text {
-        text: " " + root.usage + "%"
-        font.family: Theme.fontFamily
-        font.pixelSize: Theme.fontSize
-        color: root.labelColor
-    }
+    iconText: Icons.cpu
+    labelText: root.usage + "%"
 
     // Previous sample of /proc/stat, used to compute the deltas.
     property real previousIdle: 0

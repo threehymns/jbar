@@ -56,19 +56,8 @@ Item {
         onClicked: root.setSinkMuted()
         onScrolled: direction => root.changeSinkVolume(direction)
 
-        Text {
-            text: output.icon
-            font.family: Theme.iconFont
-            font.pixelSize: Theme.fontSize
-            color: output.labelColor
-        }
-
-        Text {
-            text: " " + output.volume + "%"
-            font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSize
-            color: output.labelColor
-        }
+        iconText: output.icon
+        labelText: output.volume + "%"
     }
 
     // The drawer the input device slides out of.
@@ -108,19 +97,8 @@ Item {
             onClicked: root.setSourceMuted()
             onScrolled: direction => root.changeSourceVolume(direction)
 
-            Text {
-                text: input.sourceMuted ? Icons.micMuted : Icons.mic
-                font.family: Theme.iconFont
-                font.pixelSize: Theme.fontSize
-                color: input.labelColor
-            }
-
-            Text {
-                text: " " + input.volume + "%"
-                font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontSize
-                color: input.labelColor
-            }
+            iconText: input.sourceMuted ? Icons.micMuted : Icons.mic
+            labelText: input.volume + "%"
         }
     }
 

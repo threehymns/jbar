@@ -85,19 +85,8 @@ Module {
 
     visible: present
 
-    Text {
-        text: root.charging ? Icons.batteryCharging : root.icon
-        font.family: Theme.iconFont
-        font.pixelSize: Theme.fontSize
-        color: root.labelColor
-    }
-
-    Text {
-        text: " " + root.percentage + "%"
-        font.family: Theme.fontFamily
-        font.pixelSize: Theme.fontSize
-        color: root.labelColor
-    }
+    iconText: root.charging ? Icons.batteryCharging : root.icon
+    labelText: root.percentage + "%"
 
     // ── power profile menu ──────────────────────────────────────────────────
 

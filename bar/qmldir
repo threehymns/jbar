@@ -1,7 +1,8 @@
-singleton Theme Theme.qml
+Bar Bar.qml
+Label Label.qml
+Module Module.qml
 singleton Icons Icons.qml
 singleton Niri Niri.qml
-singleton Tooltip Tooltip.qml
 singleton Player Player.qml
-Bar Bar.qml
-Module Module.qml
+singleton Theme Theme.qml
+singleton Tooltip Tooltip.qml

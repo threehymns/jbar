@@ -45,12 +45,8 @@ Item {
 
         onClicked: Quickshell.execDetached(["wlogout"])
 
-        Text {
-            text: Icons.power
-            font.family: Theme.iconFont
-            font.pixelSize: 18
-            color: power.labelColor
-        }
+        iconText: Icons.power
+        iconPixelSize: 18
     }
 
     // The drawer the idle inhibitor slides out of.
@@ -83,12 +79,7 @@ Item {
 
             onClicked: idle.active = !idle.active
 
-            Text {
-                text: idle.active ? Icons.idleActive : Icons.idleInactive
-                font.family: Theme.iconFont
-                font.pixelSize: Theme.fontSize
-                color: idle.labelColor
-            }
+            iconText: idle.active ? Icons.idleActive : Icons.idleInactive
 
             IdleInhibitor {
                 id: inhibitor

@@ -38,10 +38,5 @@ Module {
     onClicked: Quickshell.execDetached(["xdg-open",
         "vicinae://launch/@Gelei/store.vicinae.bluetooth/devices"])
 
-    Text {
-        text: root.icon
-        font.family: Theme.iconFont
-        font.pixelSize: Theme.fontSize
-        color: root.labelColor
-    }
+    iconText: root.icon
 }

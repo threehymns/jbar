@@ -30,12 +30,7 @@ Module {
     onClicked: Quickshell.execDetached(["xdg-open",
         "vicinae://launch/@dagimg-dot/store.vicinae.wifi-commander/scan-wifi"])
 
-    Text {
-        text: root.icon
-        font.family: Theme.iconFont
-        font.pixelSize: Theme.fontSize
-        color: root.labelColor
-    }
+    iconText: root.icon
 
     Process {
         id: netProc

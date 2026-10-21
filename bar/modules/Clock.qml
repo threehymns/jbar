@@ -36,14 +36,9 @@ Module {
             + (root.twentyFourHour ? "24" : "12") + " > " + root.stateFile])
     }
 
-    Text {
-        text: !root.now ? "" : (root.twentyFourHour
-            ? Qt.formatTime(root.now, "HH:mm")
-            : Qt.formatTime(root.now, "h:mm AP"))
-        font.family: Theme.fontFamily
-        font.pixelSize: Theme.fontSize
-        color: root.labelColor
-    }
+    labelText: !root.now ? "" : (root.twentyFourHour
+        ? Qt.formatTime(root.now, "HH:mm")
+        : Qt.formatTime(root.now, "h:mm AP"))
 
     Timer {
         interval: 1000

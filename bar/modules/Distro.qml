@@ -16,10 +16,6 @@ Module {
 
     onClicked: Quickshell.execDetached(["rofi", "-show", "drun"])
 
-    Text {
-        text: Icons.distro
-        font.family: Theme.iconFont
-        font.pixelSize: 20
-        color: root.labelColor
-    }
+    iconText: Icons.distro
+    iconPixelSize: 20
 }
