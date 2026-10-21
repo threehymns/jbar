@@ -54,76 +54,60 @@ Module {
 
     // ── brightness slider ───────────────────────────────────────────────────
 
-    PopupWindow {
+    Popup {
         id: sliderPopup
-        color: "transparent"
-        visible: false
+        barWindow: root.barRef
+        target: root
+        radius: 16
         implicitWidth: 300
         implicitHeight: 48
 
-        anchor.window: root.barRef
-        anchor.rect.x: {
-            if (!root.barRef || !root.barRef.contentItem)
-                return 0
-            const pos = root.mapToItem(root.barRef.contentItem, 0, 0)
-            return Math.round(pos.x + root.width / 2 - width / 2)
-        }
-        anchor.rect.y: root.barRef ? root.barRef.height : 0
-
-        Rectangle {
-            anchors.fill: parent
-            radius: 16
-            color: Theme.mainBg
-            border.width: 2
-            border.color: Theme.mainBr
-
-            Row {
+        Row {
                 anchors.fill: parent
-                anchors.leftMargin: 14
-                anchors.rightMargin: 14
-                spacing: 10
+            anchors.leftMargin: 14
+            anchors.rightMargin: 14
+            spacing: 10
 
-                Label {
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: root.metric.glyph
-                    glyph: true
-                    color: Theme.mainFg
+            Label {
+                anchors.verticalCenter: parent.verticalCenter
+                text: root.metric.glyph
+                glyph: true
+                color: Theme.mainFg
+            }
+
+            Slider {
+                id: slider
+                anchors.verticalCenter: parent.verticalCenter
+                width: parent.width - 30
+                from: 0
+                to: 100
+                stepSize: 1
+                value: root.percent
+                onMoved: root.setBrightness(value)
+
+                handle: Rectangle {
+                    x: slider.leftPadding + slider.visualPosition
+                        * (slider.availableWidth - width)
+                    y: slider.topPadding + slider.availableHeight / 2 - height / 2
+                    implicitWidth: 12
+                    implicitHeight: 12
+                    radius: 6
+                    color: Theme.accent
                 }
 
-                Slider {
-                    id: slider
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: parent.width - 30
-                    from: 0
-                    to: 100
-                    stepSize: 1
-                    value: root.percent
-                    onMoved: root.setBrightness(value)
+                background: Rectangle {
+                    x: slider.leftPadding
+                    y: slider.topPadding + slider.availableHeight / 2 - height / 2
+                    width: slider.availableWidth
+                    height: 8
+                    radius: 4
+                    color: Theme.bg3
 
-                    handle: Rectangle {
-                        x: slider.leftPadding + slider.visualPosition
-                            * (slider.availableWidth - width)
-                        y: slider.topPadding + slider.availableHeight / 2 - height / 2
-                        implicitWidth: 12
-                        implicitHeight: 12
-                        radius: 6
+                    Rectangle {
+                        width: slider.visualPosition * parent.width
+                        height: parent.height
+                        radius: parent.radius
                         color: Theme.accent
-                    }
-
-                    background: Rectangle {
-                        x: slider.leftPadding
-                        y: slider.topPadding + slider.availableHeight / 2 - height / 2
-                        width: slider.availableWidth
-                        height: 8
-                        radius: 4
-                        color: Theme.bg3
-
-                        Rectangle {
-                            width: slider.visualPosition * parent.width
-                            height: parent.height
-                            radius: parent.radius
-                            color: Theme.accent
-                        }
                     }
                 }
             }

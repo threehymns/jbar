@@ -161,7 +161,7 @@ Rectangle {
         }
         onExited: {
             root.hoveredLeave()
-            Tooltip.hide()
+            Tooltip.hide(root)
         }
 
         onClicked: mouse => {

@@ -37,35 +37,18 @@ Module {
         onTriggered: root.now = new Date()
     }
 
-    PopupWindow {
+    Popup {
         id: calendarPopup
-        color: "transparent"
-        visible: false
+        barWindow: root.barRef
+        target: root
         implicitWidth: calendar.implicitWidth + 20
         implicitHeight: calendar.implicitHeight + 20
 
-        anchor.window: root.barRef
-        anchor.rect.x: {
-            if (!root.barRef || !root.barRef.contentItem)
-                return 0
-            const pos = root.mapToItem(root.barRef.contentItem, 0, 0)
-            return Math.round(pos.x + root.width / 2 - width / 2)
-        }
-        anchor.rect.y: root.barRef ? root.barRef.height : 0
-
-        Rectangle {
-            anchors.fill: parent
-            radius: 12
-            color: Theme.mainBg
-            border.width: 2
-            border.color: Theme.mainBr
-
-            Calendar {
-                id: calendar
-                anchors.centerIn: parent
-                currentDate: root.now
-                yearMode: root.yearMode
-            }
+        Calendar {
+            id: calendar
+            anchors.centerIn: parent
+            currentDate: root.now
+            yearMode: root.yearMode
         }
     }
 }

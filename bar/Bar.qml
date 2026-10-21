@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Window
 import Quickshell
 import "modules/"
 
@@ -36,7 +37,29 @@ PanelWindow {
         color: Theme.mainBg
 
         Item {
+            id: barContent
             anchors.fill: parent
+
+            // ── tooltip ──────────────────────────────────────────────────────
+            // A single popup is shared by every module of this bar.
+
+            Popup {
+                id: tipPopup
+                barWindow: bar
+                property string tipText: ""
+
+                implicitWidth: tipLabel.implicitWidth + 20
+                implicitHeight: tipLabel.implicitHeight + 14
+
+                Text {
+                    id: tipLabel
+                    anchors.centerIn: parent
+                    text: tipPopup.tipText
+                    color: Theme.mainFg
+                    font.family: Theme.fontFamily
+                    font.pixelSize: 13
+                }
+            }
 
             // ── modules-left ────────────────────────────────────────────────
             Row {
@@ -95,51 +118,25 @@ PanelWindow {
         }
     }
 
-    // ── tooltip ────────────────────────────────────────────────────────────
-    // A single popup is shared by every module.
+    // The window of the bar. It is not known while the bar is built, so the
+    // tooltip is registered as soon as it shows up. Every bar has its own
+    // tooltip, so the tooltip of one output does not show up on another.
+    readonly property var barWindow: barContent.Window.window
+    property var registeredWindow: null
 
-    PopupWindow {
-        id: tipPopup
-        color: "transparent"
-        visible: false
-
-        // The module the tooltip belongs to.
-        property Item target: null
-        property string tipText: ""
-
-        implicitWidth: tipLabel.implicitWidth + 20
-        implicitHeight: tipLabel.implicitHeight + 14
-
-        anchor.window: bar
-        anchor.rect.x: {
-            if (!tipPopup.target)
-                return 0
-            const pos = tipPopup.target.mapToItem(bar.contentItem, 0, 0)
-            return Math.round(pos.x + tipPopup.target.width / 2 - width / 2)
-        }
-        anchor.rect.y: bar.height + 4
-
-        Rectangle {
-            anchors.fill: parent
-            radius: 12
-            color: Theme.mainBg
-            border.width: 2
-            border.color: Theme.mainBr
-
-            Text {
-                id: tipLabel
-                anchors.centerIn: parent
-                text: tipPopup.tipText
-                color: Theme.mainFg
-                font.family: Theme.fontFamily
-                font.pixelSize: 13
-            }
-        }
+    onBarWindowChanged: {
+        if (bar.registeredWindow)
+            Tooltip.unregister(bar.registeredWindow)
+        bar.registeredWindow = bar.barWindow
+        if (bar.barWindow)
+            Tooltip.register(bar.barWindow, tipPopup)
     }
 
-    Component.onCompleted: {
-        Tooltip.popup = tipPopup
-        Tooltip.host = bar
+    Component.onDestruction: {
+        if (bar.registeredWindow)
+            Tooltip.unregister(bar.registeredWindow)
     }
+
+
 
 }

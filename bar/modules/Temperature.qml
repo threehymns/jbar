@@ -43,4 +43,5 @@ Module {
 
     iconText: critical ? Icons.tempCritical : metric.glyph
     labelText: fahrenheit + "°F"
+
 }

@@ -101,67 +101,50 @@ Module {
 
     // ── power profile menu ──────────────────────────────────────────────────
 
-    PopupWindow {
+    Popup {
         id: profileMenu
-        color: "transparent"
-        visible: false
+        barWindow: root.barRef
+        target: root
         implicitWidth: 180
         implicitHeight: 120
 
-        anchor.window: root.barRef
-        anchor.rect.x: {
-            if (!root.barRef || !root.barRef.contentItem)
-                return 0
-            const pos = root.mapToItem(root.barRef.contentItem, 0, 0)
-            return Math.round(pos.x + root.width / 2 - width / 2)
-        }
-        anchor.rect.y: root.barRef ? root.barRef.height : 0
+        Column {
+            anchors.centerIn: parent
+            spacing: 2
 
-        Rectangle {
-            anchors.fill: parent
-            radius: 12
-            color: Theme.mainBg
-            border.width: 2
-            border.color: Theme.mainBr
+            Repeater {
+                model: [
+                    { label: "Performance", profile: PowerProfile.Performance },
+                    { label: "Balanced", profile: PowerProfile.Balanced },
+                    { label: "Power Saver", profile: PowerProfile.PowerSaver }
+                ]
 
-            Column {
-                anchors.centerIn: parent
-                spacing: 2
+                delegate: Rectangle {
+                    id: entry
+                    required property var modelData
+                    readonly property bool current: PowerProfiles.profile === modelData.profile
 
-                Repeater {
-                    model: [
-                        { label: "Performance", profile: PowerProfile.Performance },
-                        { label: "Balanced", profile: PowerProfile.Balanced },
-                        { label: "Power Saver", profile: PowerProfile.PowerSaver }
-                    ]
+                    width: 168
+                    height: 30
+                    radius: 8
+                    color: entryMouse.containsMouse ? Theme.hoverBg : "transparent"
 
-                    delegate: Rectangle {
-                        id: entry
-                        required property var modelData
-                        readonly property bool current: PowerProfiles.profile === modelData.profile
+                    Text {
+                        anchors.centerIn: parent
+                        text: (entry.current ? "✓ " : "  ") + entry.modelData.label
+                        color: entry.current ? Theme.mainFg : Theme.fg3
+                        font.family: Theme.fontFamily
+                        font.pixelSize: 13
+                    }
 
-                        width: 168
-                        height: 30
-                        radius: 8
-                        color: entryMouse.containsMouse ? Theme.hoverBg : "transparent"
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: (entry.current ? "✓ " : "  ") + entry.modelData.label
-                            color: entry.current ? Theme.mainFg : Theme.fg3
-                            font.family: Theme.fontFamily
-                            font.pixelSize: 13
-                        }
-
-                        MouseArea {
-                            id: entryMouse
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: {
-                                PowerProfiles.profile = entry.modelData.profile
-                                profileMenu.visible = false
-                            }
+                    MouseArea {
+                        id: entryMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            PowerProfiles.profile = entry.modelData.profile
+                            profileMenu.visible = false
                         }
                     }
                 }

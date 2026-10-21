@@ -16,6 +16,7 @@ bar/Icons.qml        the Nerd Font glyphs of the waybar config
 bar/Label.qml        a text run with the typography of the bar
 bar/Metric.qml       a number of the system, with its states and its glyphs
 bar/DrawerGroup.qml  a group of two modules, the second one hidden
+bar/Popup.qml        a popup of the bar, anchored below its module
 bar/Tooltip.qml      controller for the shared tooltip popup
 bar/adapters/        the things that talk to the system
   Niri.qml           niri IPC (workspaces, focused window)
@@ -76,6 +77,10 @@ be tested without a bar:
 Both groups use the waybar `drawer` option: the second module of the group
 is hidden and slides out to the left while the group is hovered, the module
 that is hovered stays where it is.
+
+Every output gets its own bar, its own tooltip and its own popups: the
+popups are registered for the window they belong to, so the tooltip of one
+output never shows up on another.
 
 ## Differences to waybar
 
