@@ -32,11 +32,16 @@ Item {
     // The hint of a field, shown while it is empty.
     property string hint: ""
 
+    // Whether a test of this command needs a confirmation.
+    property bool destructive: false
+
     // The value of the setting.
     readonly property var value: root.key === "" ? undefined : Settings[root.key]
 
-    // A command row carries the argument preview below its field.
-    implicitHeight: root.type === "command" ? 44 : 28
+    // A command row carries the argument preview, the test action and the
+    // result below its field, so it is as tall as its content. The other
+    // rows keep the fixed height of the page.
+    implicitHeight: root.type === "command" ? command.implicitHeight + 4 : 28
 
     // Write a new value to the setting.
     function store(val) {
@@ -44,11 +49,12 @@ Item {
             Settings.set(root.key, val)
     }
 
-    // The name of the setting.
+    // The name of the setting. A command row is taller than its field, so
+    // its label lines up with the field instead of the middle of the row.
     Label {
         anchors.left: parent.left
-        anchors.verticalCenter: parent.verticalCenter
         width: parent.width * 0.45
+        y: root.type === "command" ? 7 : (root.height - implicitHeight) / 2
         text: root.label
         color: Theme.fg3
         pixelSize: 12
@@ -67,14 +73,16 @@ Item {
         onEdited: text => root.store(text)
     }
 
-    // The field and the argument preview of a command.
+    // The field, the argument preview and the test action of a command.
     SettingCommand {
+        id: command
         anchors.right: parent.right
         anchors.top: parent.top
         visible: root.type === "command"
         width: parent.width * 0.5
         value: root.value === undefined ? "" : String(root.value)
         hint: root.hint
+        destructive: root.destructive
         onEdited: text => root.store(text)
     }
 

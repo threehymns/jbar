@@ -164,4 +164,19 @@ TestCase {
                 verify(entries[j].key in Settings, entries[j].key + " is not a setting")
         }
     }
+
+    function test_the_destructive_commands_are_marked_for_confirmation() {
+        const entries = {}
+        for (let i = 0; i < Settings.sections.length; i++) {
+            const section = Settings.sections[i].entries
+            for (let j = 0; j < section.length; j++)
+                entries[section[j].key] = section[j]
+        }
+
+        compare(entries.powerMenuCommand.destructive, true)
+        compare(entries.updatesCommand.destructive, true)
+
+        // a launcher is not destructive and must run on the first click
+        verify(entries.launcherCommand.destructive === undefined)
+    }
 }
