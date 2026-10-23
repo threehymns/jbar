@@ -16,6 +16,8 @@ bar/Theme.qml        colours, fonts and metrics (theme.css)
 bar/Icons.qml        the Nerd Font glyphs of the waybar config
 bar/Label.qml        a text run with the typography of the bar
 bar/Metric.qml       a number of the system, with its states and its glyphs
+bar/Metrics.qml      the system metrics shared by every bar
+bar/MetricsPollers.qml the one poller of every shared metric
 bar/NiriReconnect.qml the reconnection policy of the niri event stream
 bar/Settings.qml     the values of the bar the user can change
 bar/SettingsPage.qml the page of the settings
@@ -44,6 +46,10 @@ quickshell -p ./shell.qml
 To run it on every output the panel is created through `Variants` with
 `Quickshell.screens` as the model, the same way the waybar `output` option
 does. The outputs the bar is shown on are a setting of the bar, see below.
+
+The system metrics are polled once for the whole shell, not once per output:
+`bar/Metrics.qml` is a QML singleton created outside the `Variants`, so every
+bar reads the same values and adding an output starts no new poll.
 
 ## Settings
 
@@ -157,6 +163,27 @@ output names of niri.
 | `networkInterval`     | int  | `10`    | how often the network is read, in seconds   |
 | `backlightInterval`   | int  | `2`     | how often the brightness is read, in seconds |
 | `updatesInterval`     | int  | `60`    | how often the updates are counted, in minutes |
+
+Every metric is polled once per shell. The defaults add up to the following
+process launches per hour; a poll of `sh -c "… | …"` is counted as the
+processes it starts:
+
+| Metric      | Polls/hour | Before #11: processes/poll | Before #11: launches/hour | After #11: processes/poll | After #11: launches/hour |
+| ----------- | ---------: | -------------------------: | ------------------------: | ------------------------: | -----------------------: |
+| processor   |        360 |               2 (sh, head) |                       720 |                  1 (head) |                      360 |
+| memory      |        360 |                2 (sh, awk) |                       720 |                   1 (awk) |                      360 |
+| temperature |        360 |          3 (sh, cat, head) |                      1080 |                  1 (head) |                      360 |
+| network     |        360 |              2 (sh, nmcli) |                       720 |                 1 (nmcli) |                      360 |
+| brightness  |       1800 |       1 (brightnessctl -m) |                      1800 |      1 (brightnessctl -m) |                     1800 |
+| updates     |          1 |   3 (sh, checkupdates, wc) |                         3 |  3 (sh, checkupdates, wc) |                        3 |
+| **total**   |            |                            |                  **5043** |                           |                 **3243** |
+
+Before #11 the table was multiplied by the number of bars: two outputs
+launched 2 × 5043 = 10086 processes an hour, three outputs 15129. After #11
+the total is the whole shell, so an added output launches no process at all.
+Before #7 the brightness poll was a five-process pipeline (5 × 1800 = 9000
+launches an hour for the brightness alone), which is where the ~13k per bar
+of the audit came from; #7 made it a single `brightnessctl -m` process.
 
 ### System
 

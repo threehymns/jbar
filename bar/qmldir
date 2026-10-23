@@ -20,5 +20,6 @@ TooltipPopup TooltipPopup.qml
 singleton BarOutputs BarOutputs.qml
 singleton ConfigMerge ConfigMerge.qml
 singleton Icons Icons.qml
+singleton Metrics Metrics.qml
 singleton Settings Settings.qml
 singleton Theme Theme.qml

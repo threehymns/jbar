@@ -6,9 +6,11 @@ import "../"
 // Percentage of used memory (MemTotal - MemAvailable) with the warning and
 // critical thresholds of the waybar config.
 Metric {
-    // The command that reads the value.
-    readonly property var command: ["sh", "-c",
-        "awk '/^MemTotal:/{t=$2} /^MemAvailable:/{a=$2} END{print t, a}' /proc/meminfo"]
+    // The command that reads the value. awk is run directly, not through a
+    // shell, so a poll is one process instead of two.
+    readonly property var command: ["awk",
+        "/^MemTotal:/{t=$2} /^MemAvailable:/{a=$2} END{print t, a}",
+        "/proc/meminfo"]
 
     // How often the command runs, in milliseconds.
     property int interval: 10000

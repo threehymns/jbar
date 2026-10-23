@@ -1,12 +1,12 @@
 import QtQuick
 import "../"
-import "../adapters/"
 import "../metrics/"
 
 // Updates — port of the waybar "custom/update" module.
 //
 // The metric of the updates knows the command and the parsing, the module
-// only draws it.
+// only draws it. The metric and its poller are shared by every bar, see
+// bar/Metrics.qml.
 Module {
     id: root
 
@@ -17,13 +17,7 @@ Module {
     minChars: 1
     dimOnHover: true
 
-    readonly property UpdatesMetric metric: UpdatesMetric {
-        checkCommand: Settings.updatesCheckCommand
-        interval: Settings.updatesInterval * 60000
-    }
-
-    // The poll that fills the metric.
-    readonly property Poller poller: Poller { metric: root.metric }
+    readonly property UpdatesMetric metric: Metrics.updates
 
     onClicked: root.run(Settings.updatesCommand)
 

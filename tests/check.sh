@@ -92,6 +92,47 @@ if ! grep -qE '^[[:space:]]*import[[:space:]]+Quickshell\.Wayland[[:space:]]*$' 
     fail "bar/modules/IdleToggle.qml must use the public Quickshell.Wayland module"
 fi
 
+# The metrics are polled once per shell, not once per output: the pollers
+# live in the Metrics singleton, never in a module. A module that
+# instantiates a Poller would poll once per bar again.
+module_pollers="$(grep -RInE '\bPoller[[:space:]]*\{' bar/modules || true)"
+if [[ -n "$module_pollers" ]]; then
+    echo "$module_pollers" >&2
+    fail "a module instantiates its own Poller; the pollers live in the shared Metrics hub"
+fi
+
+metrics="bar/Metrics.qml"
+pollers_file="bar/MetricsPollers.qml"
+if [[ ! -f "$metrics" ]]; then
+    fail "bar/Metrics.qml is missing"
+elif [[ ! -f "$pollers_file" ]]; then
+    fail "bar/MetricsPollers.qml is missing"
+else
+    if ! grep -qE '^singleton Metrics Metrics\.qml$' bar/qmldir; then
+        fail "bar/qmldir does not register the Metrics singleton"
+    fi
+    if ! grep -qE 'source:[[:space:]]*"MetricsPollers\.qml"' "$metrics"; then
+        fail "bar/Metrics.qml does not load the shared pollers"
+    fi
+
+    pollers="$(grep -cE '\bPoller[[:space:]]*\{' "$pollers_file" || true)"
+    if [[ "$pollers" -ne 6 ]]; then
+        fail "$pollers_file has $pollers pollers, expected one per polled metric"
+    fi
+
+    for metric in cpu memory temperature network updates backlight; do
+        if ! grep -qE "property [A-Za-z]+Metric ${metric}:" "$metrics"; then
+            fail "bar/Metrics.qml does not own the $metric metric"
+        fi
+        if ! grep -qE "property Poller ${metric}Poller:" "$pollers_file"; then
+            fail "$pollers_file does not own the $metric poller"
+        fi
+        if ! grep -qE "metric:[[:space:]]*Metrics\.${metric}[[:space:]]*$" "$pollers_file"; then
+            fail "$pollers_file does not poll the $metric metric"
+        fi
+    done
+fi
+
 # The example is a template, never the config the bar reads.
 config="config.example.json"
 if [[ ! -f "$config" ]]; then

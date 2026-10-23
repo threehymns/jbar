@@ -10,9 +10,11 @@ import "../"
 // necessarily the one that carries the traffic.
 Metric {
     // The command that reads the value. The connection name is read as well
-    // so the tooltip can name the network the bar is on.
-    readonly property var command: ["sh", "-c",
-        "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device 2>/dev/null"]
+    // so the tooltip can name the network the bar is on. nmcli is run
+    // directly, not through a shell, so a poll is one process instead of
+    // two.
+    readonly property var command: ["nmcli", "-t",
+        "-f", "DEVICE,TYPE,STATE,CONNECTION", "device"]
 
     // How often the command runs, in milliseconds.
     property int interval: 10000
