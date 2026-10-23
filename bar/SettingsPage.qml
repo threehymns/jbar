@@ -1,5 +1,5 @@
 import QtQuick
-import QtQuick.Controls
+import QtQuick.Controls as Controls
 
 // SettingsPage — the page of the settings of the bar.
 //
@@ -12,7 +12,7 @@ Item {
     // The space around the settings.
     property int padding: 12
 
-    ScrollView {
+    Controls.ScrollView {
         id: scroll
         anchors.fill: parent
         contentWidth: availableWidth
