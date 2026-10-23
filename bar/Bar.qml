@@ -27,7 +27,7 @@ PanelWindow {
     // every output, and a list that matches no connected screen falls back
     // to every output so the settings stay reachable.
     readonly property var outputPlan: BarOutputs.plan(Settings.outputs,
-        root.connectedOutputs)
+        bar.connectedOutputs)
 
     readonly property string outputName: screen ? screen.name : ""
 
@@ -52,10 +52,10 @@ PanelWindow {
     aboveWindows: true
     color: "transparent"
 
-    visible: BarOutputs.shows(root.outputPlan, root.outputName)
+    visible: BarOutputs.shows(bar.outputPlan, bar.outputName)
 
-    onOutputPlanChanged: BarOutputs.warn(root.outputPlan)
-    Component.onCompleted: BarOutputs.warn(root.outputPlan)
+    onOutputPlanChanged: BarOutputs.warn(bar.outputPlan)
+    Component.onCompleted: BarOutputs.warn(bar.outputPlan)
 
     Rectangle {
         anchors.fill: parent

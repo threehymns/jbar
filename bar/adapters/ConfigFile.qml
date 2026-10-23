@@ -85,7 +85,7 @@ QtObject {
         }
         // the view does not read the file again on its own, so a change on
         // disk is loaded before the settings are updated
-        onFileChanged: root.fileChanged()
+        onFileChanged: root.reloadFile()
         onSaved: root.saved()
         onSaveFailed: error => root.failed(error)
     }
@@ -100,7 +100,10 @@ QtObject {
 
     // A change of the file was reported. The file is read back, a write that
     // is in flight updates the values itself.
-    function fileChanged() {
+    // The file changed on disk. The name must not be fileChanged: that is
+    // the notify signal of the `file` property, and a method with the same
+    // name is an invalid override of the property change signal.
+    function reloadFile() {
         if (root.writing)
             return
         root.reloading = true
