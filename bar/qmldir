@@ -1,4 +1,5 @@
 Bar Bar.qml
+BluetoothState BluetoothState.qml
 DrawerGroup DrawerGroup.qml
 Label Label.qml
 Metric Metric.qml
