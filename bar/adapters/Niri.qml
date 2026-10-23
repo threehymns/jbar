@@ -2,6 +2,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import "../"
 
 // Niri — thin wrapper around the niri IPC.
 //
@@ -19,7 +20,11 @@ Singleton {
     // { id, title, appId }
     property var focusedWindow: null
 
-    readonly property bool streamAlive: streamProc.running
+    // The reconnection policy of the event stream: the delay before the
+    // next attempt and whether the fallback has to poll.
+    readonly property NiriReconnect reconnect: NiriReconnect {}
+
+    readonly property bool streamAlive: root.reconnect.streamAlive
 
     // ── actions ─────────────────────────────────────────────────────────────
 
@@ -101,9 +106,22 @@ Singleton {
         command: ["niri", "msg", "event-stream"]
         running: true
 
+        onStarted: root.reconnect.streamStarted()
+
+        onExited: exitCode => {
+            const wait = root.reconnect.streamExited()
+            console.warn("[niri] event stream exited with code " + exitCode
+                + ", reconnecting in " + wait + " ms")
+            retryTimer.interval = wait
+            retryTimer.restart()
+        }
+
         stdout: SplitParser {
             splitMarker: "\n"
-            onRead: root.scheduleRefresh()
+            onRead: {
+                root.reconnect.streamRead()
+                root.scheduleRefresh()
+            }
         }
     }
 
@@ -114,14 +132,24 @@ Singleton {
         onTriggered: root.refresh()
     }
 
-    // Fallback for when the event stream is unavailable.
+    // One retry timer, one stream process: the adapter never starts a
+    // second event stream while the first one is still running.
     Timer {
-        interval: 2000
-        running: true
-        repeat: true
+        id: retryTimer
+        repeat: false
         onTriggered: {
-            if (!root.streamAlive)
-                root.refresh()
+            if (!streamProc.running)
+                streamProc.running = true
         }
+    }
+
+    // Fallback for when the event stream is unavailable. It is bound to
+    // the policy, so it stops as soon as the stream is up again.
+    Timer {
+        id: fallback
+        interval: 2000
+        running: root.reconnect.polling
+        repeat: true
+        onTriggered: root.refresh()
     }
 }

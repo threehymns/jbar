@@ -15,6 +15,7 @@ bar/Theme.qml        colours, fonts and metrics (theme.css)
 bar/Icons.qml        the Nerd Font glyphs of the waybar config
 bar/Label.qml        a text run with the typography of the bar
 bar/Metric.qml       a number of the system, with its states and its glyphs
+bar/NiriReconnect.qml the reconnection policy of the niri event stream
 bar/Settings.qml     the values of the bar the user can change
 bar/SettingsPage.qml the page of the settings
 bar/SettingRow.qml   a row of the settings page
