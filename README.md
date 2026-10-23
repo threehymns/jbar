@@ -54,9 +54,9 @@ when it closes.
 The settings live in `config.json` in the config folder of the user,
 `$XDG_CONFIG_HOME/quickshell/jbar/config.json` (usually
 `~/.config/quickshell/jbar/config.json`), not in the checkout of the bar.
-The folder is created on first run. The file is read when the bar starts
-and written when a value changes, a file that was edited by hand is picked
-up while the bar runs.
+The folder and the file are created the first time a setting changes. The
+file is read when the bar starts and written when a value changes, a file
+that was edited by hand is picked up while the bar runs.
 
 The settings are changed in the page of the settings: the button of the
 settings slides out of the group of the logo of the distribution, it opens
