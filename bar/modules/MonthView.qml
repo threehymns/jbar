@@ -1,12 +1,17 @@
 import QtQuick
 import QtQuick.Layouts
 import "../"
+import "../metrics/"
 
 // MonthView — a single month of the waybar clock calendar.
 //
 // The colours are the ones of the theme of the bar.
 ColumnLayout {
     id: monthRoot
+
+    CalendarMath {
+        id: calendarMath
+    }
 
     property int year: 2024
     property int month: 0 // zero based
@@ -29,7 +34,8 @@ ColumnLayout {
     }
 
     // Flat list of the cells of the month: seven day cells per row followed
-    // by the week number of that row ("weeks-pos": "right").
+    // by the ISO week number of the Monday of that row ("weeks-pos":
+    // "right"). The Monday can belong to the previous month or year.
     readonly property var cells: {
         const result = []
         const blanks = firstWeekday(year, month)
@@ -42,7 +48,7 @@ ColumnLayout {
                 const day = index < blanks ? 0 : index - blanks + 1
                 result.push({ day: day > days ? 0 : day, week: 0 })
             }
-            result.push({ day: 0, week: row + 1 })
+            result.push({ day: 0, week: calendarMath.isoWeekOfRow(year, month, row) })
         }
         return result
     }
@@ -81,8 +87,9 @@ ColumnLayout {
                 id: cell
                 required property var modelData
 
-                implicitWidth: 16
-                implicitHeight: 14
+                implicitWidth: cell.modelData.week > 0
+                    ? calendarMath.weekWidth : calendarMath.cellWidth
+                implicitHeight: calendarMath.cellHeight
 
                 readonly property bool isToday: cell.modelData.day === monthRoot.todayDay
                     && monthRoot.currentMonth
@@ -100,7 +107,8 @@ ColumnLayout {
                 Label {
                     anchors.centerIn: parent
                     visible: cell.modelData.week > 0
-                    text: cell.modelData.week
+                    text: cell.modelData.week > 0
+                        ? calendarMath.weekLabel(cell.modelData.week) : ""
                     color: Theme.aqua
                     pixelSize: 9
                 }

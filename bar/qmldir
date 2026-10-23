@@ -2,6 +2,7 @@ Bar Bar.qml
 BluetoothState BluetoothState.qml
 DrawerGroup DrawerGroup.qml
 Label Label.qml
+LazyContent LazyContent.qml
 Metric Metric.qml
 Module Module.qml
 Motion Motion.qml

@@ -1,25 +1,33 @@
 import QtQuick
 import QtQuick.Layouts
 import "../"
+import "../metrics/"
 
-// Calendar — the year / month view of the waybar clock calendar tooltip.
+// Calendar — the year / month view of the waybar clock calendar.
 //
 // The year view shows the twelve months in three columns, the month view
-// shows the current month only.
+// shows the current month only, centred in the same space. The preferred
+// size is the one of the largest year view and does not depend on the view
+// or on the month, so the popup keeps one size while its content changes.
 Item {
     id: calendarRoot
 
     property var currentDate: new Date()
     property bool yearMode: true
 
-    implicitWidth: grid.implicitWidth
-    implicitHeight: grid.implicitHeight
+    CalendarMath {
+        id: calendarMath
+    }
+
+    implicitWidth: calendarMath.preferredWidth
+    implicitHeight: calendarMath.preferredHeight
 
     GridLayout {
         id: grid
+        anchors.centerIn: parent
         columns: calendarRoot.yearMode ? 3 : 1
-        columnSpacing: 20
-        rowSpacing: 10
+        columnSpacing: calendarMath.columnSpacing
+        rowSpacing: calendarMath.rowSpacing
 
         Repeater {
             model: calendarRoot.yearMode ? 12 : 1
