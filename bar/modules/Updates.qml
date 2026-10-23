@@ -12,8 +12,8 @@ Module {
 
     bg: Theme.tray
     // #custom-update { padding: 0 8px 0 2px; }
-    padLeft: 2
-    padRight: 8
+    padLeft: Theme.px(2)
+    padRight: Theme.px(8)
     minChars: 1
     dimOnHover: true
 

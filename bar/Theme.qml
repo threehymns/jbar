@@ -74,11 +74,38 @@ QtObject {
     readonly property int fontSize: Settings.fontSize
     readonly property int iconSize: Settings.fontSize
 
+    // ── the scale of the bar ────────────────────────────────────────────────
+    // The bar was designed for 16 px text: a 31 px row, 10 px module padding
+    // and 7.2 px per character. The font size setting goes from 8 to 48 px,
+    // so every layout metric is derived from this one scale. At 16 px the
+    // scale is 1 and the bar looks exactly like the waybar config.
+    readonly property real scale: fontSize / 16
+
+    // A design size of the 16 px bar, scaled to the current font size.
+    function px(value) {
+        return Math.round(value * theme.scale)
+    }
+
+    // The height of a row of the bar. It is the 31 px default row scaled with
+    // the font, but never less than the text plus the scaled padding of the
+    // row, so the text of 8 px and 48 px labels never clips.
+    readonly property int rowPadding: theme.px(8)
+    readonly property int rowHeight: Math.max(fontSize + rowPadding, theme.px(31))
+
+    // The horizontal padding and the hover radius of a module.
+    readonly property int modulePadding: theme.px(10)
+    readonly property int moduleRadius: theme.px(16)
+
+    // One workspace cell: as tall as a row and square, so the glyph stays
+    // centred in the cell at every font size.
+    readonly property int workspaceCell: rowHeight
+
     // waybar's "min-length"/"max-length" are expressed in characters. Pango,
     // the text stack waybar uses, measures a character of the bar font at
-    // about 7.2 pixels, so the same value is used here to turn the
-    // min-lengths of the waybar config into pixels.
-    readonly property real charWidth: 7.2
+    // about 7.2 pixels at the default size, so the same value is used here
+    // to turn the min-lengths of the waybar config into pixels. It follows
+    // the font size with the rest of the bar.
+    readonly property real charWidth: 7.2 * scale
 
     // The advance width of a space in the bar font. The waybar formats
     // separate the icon and the value with a space, so the modules use this

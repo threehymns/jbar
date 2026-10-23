@@ -79,7 +79,7 @@ Item {
 
     implicitWidth: (root.triggerModule ? root.triggerModule.width : 0)
         + (!root.overlay && root.open ? root.drawerWidth : 0)
-    implicitHeight: 31
+    implicitHeight: Theme.rowHeight
 
     Behavior on implicitWidth {
         Motion { time: root.duration }
@@ -110,7 +110,7 @@ Item {
         id: drawer
         x: root.open && root.overlay ? -root.drawerWidth : 0
         width: root.open ? root.drawerWidth : 0
-        height: 31
+        height: Theme.rowHeight
         clip: true
 
         Behavior on x {
@@ -124,7 +124,7 @@ Item {
         // The modules that slide out to the left of the trigger.
         Row {
             id: drawerRow
-            height: 31
+            height: Theme.rowHeight
         }
     }
 
@@ -133,7 +133,7 @@ Item {
         id: drawerRight
         x: root.open && root.overlay ? root.triggerWidth : 0
         width: root.open && root.overlay ? root.rightWidth : 0
-        height: 31
+        height: Theme.rowHeight
         clip: true
 
         Behavior on x {
@@ -147,7 +147,7 @@ Item {
         // The modules that slide out to the right of the trigger.
         Row {
             id: drawerRightRow
-            height: 31
+            height: Theme.rowHeight
         }
     }
 
@@ -158,7 +158,7 @@ Item {
         anchors.right: parent.right
         anchors.verticalCenter: parent.verticalCenter
         width: root.triggerWidth
-        height: 31
+        height: Theme.rowHeight
     }
 
     // The hidden modules live in the drawer, so that the drawer clips them

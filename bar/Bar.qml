@@ -47,8 +47,8 @@ PanelWindow {
         right: true
     }
 
-    implicitHeight: 31
-    exclusiveZone: visible ? 31 : 0
+    implicitHeight: Theme.rowHeight
+    exclusiveZone: visible ? Theme.rowHeight : 0
     aboveWindows: true
     color: "transparent"
 

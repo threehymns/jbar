@@ -22,9 +22,10 @@ Rectangle {
     // Background of the module (a Theme.* colour).
     property color bg: "transparent"
 
-    // Horizontal padding, ported from the waybar stylesheet.
-    property int padLeft: 10
-    property int padRight: 10
+    // Horizontal padding, ported from the waybar stylesheet and scaled with
+    // the font size.
+    property int padLeft: Theme.modulePadding
+    property int padRight: Theme.modulePadding
 
     // Minimum label width in characters (waybar's "min-length").
     property int minChars: 0
@@ -101,7 +102,7 @@ Rectangle {
     readonly property bool hovered: mouse.containsMouse
     readonly property color labelColor: (stateDim || (dimOnHover && hovered)) ? Theme.hoverFg : fg
 
-    implicitHeight: 31
+    implicitHeight: Theme.rowHeight
     implicitWidth: Math.max(contentRow.implicitWidth, minChars > 0 ? Theme.minWidth(minChars) : 0)
         + padLeft + padRight
     color: bg
@@ -109,7 +110,7 @@ Rectangle {
     // Hover background, painted below the content.
     Rectangle {
         anchors.fill: parent
-        radius: 16
+        radius: Theme.moduleRadius
         color: root.hoverBackground && root.hovered ? Theme.hoverBg : "transparent"
     }
 

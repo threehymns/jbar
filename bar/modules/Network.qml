@@ -12,8 +12,8 @@ Module {
 
     bg: Theme.tray
     // #network { padding: 0 6px 0 4px; }
-    padLeft: 4
-    padRight: 6
+    padLeft: Theme.px(4)
+    padRight: Theme.px(6)
     minChars: 2
     dimOnHover: true
 
