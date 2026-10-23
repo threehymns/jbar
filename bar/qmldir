@@ -5,6 +5,7 @@ Label Label.qml
 Metric Metric.qml
 Module Module.qml
 Motion Motion.qml
+NiriReconnect NiriReconnect.qml
 Popup Popup.qml
 SettingChoice SettingChoice.qml
 SettingNumber SettingNumber.qml
