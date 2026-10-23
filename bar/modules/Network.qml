@@ -26,5 +26,7 @@ Module {
 
     onClicked: root.run(Settings.networkManagerCommand)
 
+    tip: root.metric.tip
+
     iconText: root.metric.icon
 }

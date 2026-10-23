@@ -29,6 +29,7 @@ QtObject {
     readonly property string update: "󰚰" // package update
     readonly property string wifi: "󰤨" // wifi
     readonly property string ethernet: "󰈀" // ethernet
+    readonly property string vpn: "󰖊" // vpn
     readonly property string networkDown: "󰤮" // wifi off
     readonly property string bluetooth: "󰂯" // bluetooth
     readonly property string bluetoothDisabled: "󰂲" // bluetooth off
