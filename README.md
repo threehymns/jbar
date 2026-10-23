@@ -95,7 +95,7 @@ output names of niri.
 
 | Key                  | Type   | Default                              | Meaning                                              |
 | -------------------- | ------ | ------------------------------------ | ---------------------------------------------------- |
-| `outputs`            | string | `"eDP-1, HDMI-A-1, DP-2"`            | the outputs the bar is shown on; empty means all     |
+| `outputs`            | string | `""`                                 | the outputs the bar is shown on; empty means all     |
 | `fontFamily`         | string | `"Geist"`                            | the font of the text of the bar                      |
 | `iconFont`           | string | `"CaskaydiaCove Nerd Font"`          | the font the icons are drawn with                    |
 | `fontSize`           | int    | `16`                                 | the size of the text and the icons, in pixels        |
