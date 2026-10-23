@@ -12,8 +12,8 @@ Module {
 
     bg: Theme.tray
     // #bluetooth { padding: 0 5px; }
-    padLeft: 5
-    padRight: 5
+    padLeft: Theme.px(5)
+    padRight: Theme.px(5)
     minChars: 2
     dimOnHover: true
 

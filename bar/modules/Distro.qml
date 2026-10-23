@@ -27,13 +27,13 @@ DrawerGroup {
         bg: Theme.accent
         fg: Theme.mainBg
         // #custom-distro { padding: 0 15px 0 10px; font-size: 20px; }
-        padLeft: 10
-        padRight: 15
+        padLeft: Theme.px(10)
+        padRight: Theme.px(15)
 
         onClicked: logo.run(Settings.launcherCommand)
 
         iconText: Icons.distro
-        iconPixelSize: 20
+        iconPixelSize: Theme.px(20)
     }
 
     // The modules that slide out to the left of the icon.

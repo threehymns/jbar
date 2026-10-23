@@ -9,12 +9,12 @@ Module {
 
     bg: Theme.mainBg
     // #custom-power { padding: 0 19px 0 16px; font-size: 18px; }
-    padLeft: 16
-    padRight: 19
+    padLeft: Theme.px(16)
+    padRight: Theme.px(19)
     fg: Theme.accent
 
     onClicked: root.run(Settings.powerMenuCommand)
 
     iconText: Icons.power
-    iconPixelSize: 18
+    iconPixelSize: Theme.px(18)
 }

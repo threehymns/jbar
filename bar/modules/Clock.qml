@@ -11,8 +11,8 @@ Module {
 
     bg: Theme.time
     // #clock.time { padding-right: 6px; padding-left: 6px; }
-    padLeft: 6
-    padRight: 6
+    padLeft: Theme.px(6)
+    padRight: Theme.px(6)
     minChars: 5
 
     property bool twentyFourHour: Settings.clock24Hour

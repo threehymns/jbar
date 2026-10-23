@@ -17,8 +17,8 @@ Module {
 
     bg: Theme.date
     // #clock.date { padding-left: 6px; }
-    padLeft: 6
-    padRight: 10
+    padLeft: Theme.px(6)
+    padRight: Theme.px(10)
     minChars: 8
     dimOnHover: true
 

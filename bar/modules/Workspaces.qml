@@ -15,15 +15,15 @@ Rectangle {
     property string outputName: ""
 
     color: Theme.workspaces
-    implicitHeight: 31
-    implicitWidth: row.implicitWidth + 2
+    implicitHeight: Theme.rowHeight
+    implicitWidth: row.implicitWidth + 2 * Theme.px(1)
 
     Row {
         id: row
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left
         // #workspaces { padding: 0 1px; }
-        anchors.leftMargin: 1
+        anchors.leftMargin: Theme.px(1)
         spacing: 0
 
         Repeater {
@@ -37,16 +37,17 @@ Rectangle {
                 readonly property bool onThisOutput: outputName === "" || modelData.output === outputName
 
                 visible: onThisOutput
-                // every workspace is a button, and buttons get 0 10px padding
-                implicitWidth: label.implicitWidth + 20
-                implicitHeight: 31
+                // A workspace is a square cell as tall as the bar, so the
+                // glyph has the same room around it at every font size.
+                implicitWidth: Theme.workspaceCell
+                implicitHeight: Theme.workspaceCell
 
                 Text {
                     id: label
                     anchors.centerIn: parent
                     text: ws.modelData.isActive ? Icons.workspaceActive : Icons.workspaceDefault
                     font.family: Theme.iconFont
-                    font.pixelSize: ws.active ? 20 : Theme.fontSize
+                    font.pixelSize: ws.active ? Theme.px(20) : Theme.fontSize
                     color: ws.active ? Theme.accent : Theme.mainFg
                 }
 

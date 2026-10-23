@@ -10,7 +10,7 @@ Module {
 
     bg: "transparent"
     // #image.album-art { padding: 0 0 0 12px; }
-    padLeft: 12
+    padLeft: Theme.px(12)
     padRight: 0
 
     readonly property var player: Player.current
@@ -35,5 +35,5 @@ Module {
     }
 
     iconImage: root.artUrl
-    iconPixelSize: 24
+    iconPixelSize: Theme.px(24)
 }
