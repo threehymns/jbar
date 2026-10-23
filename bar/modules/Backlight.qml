@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Controls
 import Quickshell
 import "../"
 import "../adapters/"
@@ -22,14 +21,25 @@ Module {
     // The poll that fills the metric.
     readonly property Poller poller: Poller { metric: root.metric }
 
+    // A drag emits a value per step; the writer turns the burst into one
+    // write when the value settles.
+    readonly property BrightnessWriter brightnessWriter: BrightnessWriter {
+        delay: 150
+        onSettled: value => Quickshell.execDetached(root.metric.setCommand(value))
+    }
+
     onClicked: root.togglePopup()
     onScrolled: direction => {
         const step = 5
         root.setBrightness(root.metric.value + (direction > 0 ? step : -step))
     }
 
+    // Show the value at once and write it when the user stops moving. The
+    // next poll confirms the value the system reports.
     function setBrightness(value) {
-        Quickshell.execDetached(root.metric.setCommand(value))
+        const clamped = root.metric.clamp(value)
+        root.metric.value = clamped
+        root.brightnessWriter.request(clamped)
     }
 
     iconText: root.metric.glyph
@@ -55,14 +65,14 @@ Module {
                 color: Theme.mainFg
             }
 
-            Slider {
+            BrightnessSlider {
                 id: slider
                 anchors.verticalCenter: parent.verticalCenter
                 width: parent.width - 30
                 from: 0
                 to: 100
                 stepSize: 1
-                value: root.metric.value
+                followValue: root.metric.value
                 onMoved: root.setBrightness(value)
 
                 handle: Rectangle {
