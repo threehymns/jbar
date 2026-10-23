@@ -4,14 +4,19 @@ import "../bar/metrics/"
 
 // The tests of the battery.
 //
-// The state machine is a plain object: the module hands the UPower values in,
-// so the warnings and the tooltip state can be tested without UPower and
-// without a bar.
+// The state machine and the device selection are plain objects: the module
+// hands the UPower values in, so the warnings, the tooltip state and the
+// selection of the system battery can be tested without UPower and without a
+// bar.
 TestCase {
     name: "Battery"
 
     BatteryState {
         id: state
+    }
+
+    BatteryDevice {
+        id: batteryDevice
     }
 
     SignalSpy {
@@ -32,6 +37,8 @@ TestCase {
         signalName: "fullCharge"
     }
 
+    readonly property int batteryType: 2 // UPowerDeviceType.Battery
+
     function init() {
         lowSpy.clear()
         criticalSpy.clear()
@@ -44,6 +51,10 @@ TestCase {
     // update arrives.
     function setState(percentage, charging, full, discharging) {
         state.update(percentage, charging, full, discharging)
+    }
+
+    function battery(name, powerSupply) {
+        return { type: batteryType, name: name, powerSupply: powerSupply }
     }
 
     // ── the state machine ───────────────────────────────────────────────────
@@ -141,4 +152,42 @@ TestCase {
         compare(state.status, "Full")
     }
 
+    // ── the device selection ────────────────────────────────────────────────
+
+    function test_the_display_device_is_the_system_battery() {
+        const peripheral = battery("peripheral", false)
+        const system = battery("system", true)
+        compare(batteryDevice.select([peripheral, system], system, batteryType).name,
+            "system")
+    }
+
+    function test_a_peripheral_battery_is_not_the_system_battery() {
+        const peripheral = battery("peripheral", false)
+        const system = battery("system", true)
+        // the peripheral comes first in the device list, but the powered
+        // battery powers the system
+        compare(batteryDevice.select([peripheral, system], null, batteryType).name,
+            "system")
+    }
+
+    function test_the_first_powered_battery_wins() {
+        const first = battery("first", true)
+        const second = battery("second", true)
+        compare(batteryDevice.select([first, second], null, batteryType).name,
+            "first")
+    }
+
+    function test_a_display_device_that_is_no_battery_falls_back() {
+        const system = battery("system", true)
+        const linePower = { type: 1, name: "line power", powerSupply: true }
+        compare(batteryDevice.select([system], linePower, batteryType).name,
+            "system")
+    }
+
+    function test_without_a_battery_there_is_no_device() {
+        compare(batteryDevice.select([], null, batteryType), null)
+        compare(batteryDevice.select(null, null, batteryType), null)
+        const linePower = { type: 1, name: "line power", powerSupply: true }
+        compare(batteryDevice.select([linePower], linePower, batteryType), null)
+    }
 }

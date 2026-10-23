@@ -1,4 +1,5 @@
 BacklightMetric BacklightMetric.qml
+BatteryDevice BatteryDevice.qml
 BatteryState BatteryState.qml
 CpuMetric CpuMetric.qml
 MemoryMetric MemoryMetric.qml

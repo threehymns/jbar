@@ -32,29 +32,31 @@ Module {
         highIsBad: false
     }
 
-    readonly property var device: {
-        if (!UPower.devices)
-            return null
-        const devices = UPower.devices.values
-        for (let i = 0; i < devices.length; i++) {
-            if (devices[i].type === UPowerDeviceType.Battery)
-                return devices[i]
-        }
-        return null
-    }
+    // UPower names the battery of the system in displayDevice, a peripheral
+    // battery is only the fallback. The selection is a plain object so it can
+    // be tested without UPower.
+    readonly property BatteryDevice batteryDevice: BatteryDevice {}
+
+    readonly property var device: batteryDevice.select(
+        UPower.devices ? UPower.devices.values : [],
+        UPower.displayDevice,
+        UPowerDeviceType.Battery)
 
     readonly property bool present: device !== null
 
     // UPower reports a percentage of its own, which is not the charge level
     // of the battery, so the level is calculated from the energy like the
     // waybar battery module does.
-    readonly property int percentage: {
-        if (!device)
+    function chargeLevel() {
+        const current = root.device
+        if (!current)
             return 0
-        if (device.energyCapacity > 0)
-            return Math.round(100 * device.energy / device.energyCapacity)
-        return Math.round(device.percentage)
+        if (current.energyCapacity > 0)
+            return Math.round(100 * current.energy / current.energyCapacity)
+        return Math.round(current.percentage)
     }
+
+    readonly property int percentage: root.chargeLevel()
 
     readonly property bool charging: device !== null
         && device.state === UPowerDeviceState.Charging
@@ -93,7 +95,7 @@ Module {
 
     onClicked: root.togglePopup()
 
-    visible: present
+    visible: root.device !== null
 
     iconText: root.charging ? Icons.batteryCharging : root.icon
     labelText: root.percentage + "%"
@@ -177,8 +179,13 @@ Module {
     function checkEvents() {
         if (!present)
             return
-        batteryState.update(root.percentage, root.charging, root.full,
-            root.discharging)
+        // read the device itself: the bindings above may still hold the value
+        // of the previous device while the properties update one by one
+        const current = root.device
+        batteryState.update(root.chargeLevel(),
+            current.state === UPowerDeviceState.Charging,
+            current.state === UPowerDeviceState.FullyCharged,
+            current.state === UPowerDeviceState.Discharging)
     }
 
     function notify(summary, urgency, icon) {
