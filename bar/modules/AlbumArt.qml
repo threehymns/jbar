@@ -10,7 +10,7 @@ Module {
 
     bg: "transparent"
     // #image.album-art { padding: 0 0 0 12px; }
-    padLeft: Theme.px(12)
+    padLeft: Theme.spaceLg
     padRight: 0
 
     readonly property var player: Player.current

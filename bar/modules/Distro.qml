@@ -25,9 +25,9 @@ DrawerGroup {
         id: logo
 
         bg: Theme.accent
-        fg: Theme.mainBg
+        fg: Theme.onAccent
         // #custom-distro { padding: 0 15px 0 10px; font-size: 20px; }
-        padLeft: Theme.px(10)
+        padLeft: Theme.modulePadding
         padRight: Theme.px(15)
 
         onClicked: logo.run(Settings.launcherCommand)

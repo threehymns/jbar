@@ -42,7 +42,7 @@ PopupWindow {
     readonly property PopupState state: popupState
 
     // The radius of the frame around the content.
-    property int radius: 12
+    property int radius: Theme.radiusLg
 
     // The size of the content of the popup.
     property int contentWidth: 0
@@ -174,7 +174,7 @@ PopupWindow {
         height: popup.contentHeight * popup.progress
         radius: popup.radius
         color: Theme.mainBg
-        border.width: 2
+        border.width: Theme.borderWidth
         border.color: Theme.mainBr
         clip: true
 

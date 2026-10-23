@@ -16,14 +16,14 @@ Rectangle {
 
     color: Theme.workspaces
     implicitHeight: Theme.rowHeight
-    implicitWidth: row.implicitWidth + 2 * Theme.px(1)
+    implicitWidth: row.implicitWidth + 2 * Theme.workspacePadding
 
     Row {
         id: row
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left
         // #workspaces { padding: 0 1px; }
-        anchors.leftMargin: Theme.px(1)
+        anchors.leftMargin: Theme.workspacePadding
         spacing: 0
 
         Repeater {
@@ -47,7 +47,7 @@ Rectangle {
                     anchors.centerIn: parent
                     text: ws.modelData.isActive ? Icons.workspaceActive : Icons.workspaceDefault
                     font.family: Theme.iconFont
-                    font.pixelSize: ws.active ? Theme.px(20) : Theme.fontSize
+                    font.pixelSize: ws.active ? Theme.workspaceActiveSize : Theme.fontSize
                     color: ws.active ? Theme.accent : Theme.mainFg
                 }
 

@@ -44,7 +44,7 @@ Module {
     // ── brightness slider ───────────────────────────────────────────────────
 
     popup: Popup {
-        radius: 16
+        radius: Theme.moduleRadius
         contentWidth: 300
         contentHeight: 48
 
@@ -77,7 +77,7 @@ Module {
                     y: slider.topPadding + slider.availableHeight / 2 - height / 2
                     implicitWidth: 12
                     implicitHeight: 12
-                    radius: 6
+                    radius: Theme.px(6)
                     color: Theme.accent
                 }
 
@@ -86,8 +86,8 @@ Module {
                     y: slider.topPadding + slider.availableHeight / 2 - height / 2
                     width: slider.availableWidth
                     height: 8
-                    radius: 4
-                    color: Theme.bg3
+                    radius: Theme.radiusSm
+                    color: Theme.surfaceHover
 
                     Rectangle {
                         width: slider.visualPosition * parent.width

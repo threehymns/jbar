@@ -133,14 +133,22 @@ QtObject {
     // The loudest volume, in percent.
     property int volumeMax: root.value("volumeMax", 150)
 
-    // The colour of the accent, the highlighted parts of the bar.
-    property string accentColor: root.value("accentColor", "#83a598")
+    // The palette the bar is painted with. The roles of a palette live in
+    // bar/ThemePalette.qml; the name is all the file has to store.
+    property string palette: root.value("palette", "mecha")
+
+    // The colour of the accent, the highlighted parts of the bar. It is an
+    // explicit override: when it was never set it follows the palette.
+    property string accentColor: root.value("accentColor",
+        ThemePalette.byName(root.palette).accent)
 
     // The colour of the background of the bar.
-    property string backgroundColor: root.value("backgroundColor", "#1d2021")
+    property string backgroundColor: root.value("backgroundColor",
+        ThemePalette.byName(root.palette).background)
 
     // The colour of the text of the bar.
-    property string foregroundColor: root.value("foregroundColor", "#ebdbb2")
+    property string foregroundColor: root.value("foregroundColor",
+        ThemePalette.byName(root.palette).foreground)
 
     // ── the sections of the settings page ───────────────────────────────────
 
@@ -230,6 +238,8 @@ QtObject {
         {
             title: "Colours",
             entries: [
+                { key: "palette", label: "Palette", type: "choice",
+                    choices: ["mecha", "light"], labels: ["Mecha", "Light"] },
                 { key: "accentColor", label: "Accent", type: "color" },
                 { key: "backgroundColor", label: "Background", type: "color" },
                 { key: "foregroundColor", label: "Text", type: "color" }
@@ -250,8 +260,36 @@ QtObject {
             return
         const next = Object.assign({}, root.stored)
         next[key] = val
+
+        // A palette switch moves the three colour overrides to the defaults
+        // of the new palette when they still hold the defaults of the old
+        // one. A colour the user picked is left alone: only an override that
+        // equals the old palette's role is carried over. An override that was
+        // never stored follows the palette on its own, so it is not written
+        // here.
+        const follow = []
+        if (key === "palette") {
+            const from = ThemePalette.byName(root.palette)
+            const to = ThemePalette.byName(val)
+            const overrides = [
+                ["accentColor", "accent"],
+                ["backgroundColor", "background"],
+                ["foregroundColor", "foreground"]
+            ]
+            for (let i = 0; i < overrides.length; i++) {
+                const colorKey = overrides[i][0]
+                const role = overrides[i][1]
+                if (next[colorKey] !== undefined && next[colorKey] === from[role]) {
+                    next[colorKey] = to[role]
+                    follow.push(colorKey)
+                }
+            }
+        }
+
         root.stored = next
         root.changed(key)
+        for (let i = 0; i < follow.length; i++)
+            root.changed(follow[i])
     }
 
     // Replace the values with the ones that were read from the file.

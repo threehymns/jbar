@@ -9,7 +9,7 @@ Module {
 
     bg: Theme.mainBg
     // #custom-power { padding: 0 19px 0 16px; font-size: 18px; }
-    padLeft: Theme.px(16)
+    padLeft: Theme.spaceXl
     padRight: Theme.px(19)
     fg: Theme.accent
 

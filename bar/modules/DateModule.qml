@@ -18,7 +18,7 @@ Module {
     bg: Theme.date
     // #clock.date { padding-left: 6px; }
     padLeft: Theme.px(6)
-    padRight: Theme.px(10)
+    padRight: Theme.modulePadding
     minChars: 8
     dimOnHover: true
 
@@ -49,8 +49,8 @@ Module {
         // The calendar has a fixed preferred size, so the popup knows its
         // size before the lazy content exists and does not resize when the
         // view or the month changes.
-        contentWidth: calendarMath.preferredWidth + 20
-        contentHeight: calendarMath.preferredHeight + 20
+        contentWidth: calendarMath.preferredWidth + Theme.popupPadding
+        contentHeight: calendarMath.preferredHeight + Theme.popupPadding
 
         LazyContent {
             id: calendarContent

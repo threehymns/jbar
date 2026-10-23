@@ -23,9 +23,9 @@ Popup {
         anchors.centerIn: parent
         text: tipText
         color: Theme.mainFg
-        pixelSize: 13
+        pixelSize: Theme.fontSizeTitle
     }
 
-    contentWidth: tipLabel.implicitWidth + 20
-    contentHeight: tipLabel.implicitHeight + 14
+    contentWidth: tipLabel.implicitWidth + Theme.popupPadding
+    contentHeight: tipLabel.implicitHeight + Theme.px(14)
 }

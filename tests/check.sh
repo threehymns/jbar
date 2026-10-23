@@ -133,6 +133,30 @@ else
     done
 fi
 
+# The palette is the only place that names a colour. A module that spells
+# out a hex colour or an alpha colour bypasses the theme, does not follow a
+# palette switch and is a bug even when the value happens to match today.
+colour_literals="$(grep -RInE "['\"]#[0-9a-fA-F]{3,8}['\"]" bar \
+    --include='*.qml' | grep -vE '^bar/(Theme|ThemePalette)\.qml:' || true)"
+if [[ -n "$colour_literals" ]]; then
+    echo "$colour_literals" >&2
+    fail "a colour is spelled out outside Theme.qml/ThemePalette.qml"
+fi
+
+alpha_colours="$(grep -RInE 'Qt\.(rgba|hsla|lighter|darker)' bar \
+    --include='*.qml' | grep -vE '^bar/(Theme|ThemePalette)\.qml:' || true)"
+if [[ -n "$alpha_colours" ]]; then
+    echo "$alpha_colours" >&2
+    fail "an alpha colour is built outside Theme.qml/ThemePalette.qml"
+fi
+
+if ! grep -qE '^singleton ThemePalette ThemePalette\.qml$' bar/qmldir; then
+    fail "bar/qmldir does not register the ThemePalette singleton"
+fi
+if ! grep -qE '\bThemePalette\.byName\(' bar/Theme.qml; then
+    fail "bar/Theme.qml does not read the palette roles"
+fi
+
 # The example is a template, never the config the bar reads.
 config="config.example.json"
 if [[ ! -f "$config" ]]; then

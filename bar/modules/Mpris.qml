@@ -12,8 +12,8 @@ Module {
 
     bg: "transparent"
     // #mpris { padding: 0 12px; }
-    padLeft: Theme.px(12)
-    padRight: Theme.px(12)
+    padLeft: Theme.spaceLg
+    padRight: Theme.spaceLg
     contentSpacing: Theme.px(6)
     dimOnHover: true
     stateDim: Player.paused
@@ -60,7 +60,7 @@ Module {
         // <span size="x-small" alpha="60%">- {artist}</span>
         text: root.artist === "" ? "" : "- " + root.artist
         color: Theme.dimFg
-        pixelSize: Theme.px(11)
+        pixelSize: Theme.fontSizeSecondary
         maxChars: 25
     }
 }
