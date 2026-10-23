@@ -67,6 +67,10 @@ Rectangle {
     // base anchors it to the module and opens and closes it.
     property var popup: null
 
+    // Whether the popup of this module is on screen, including the exit
+    // animation. The tooltip stays away while it is.
+    readonly property bool popupOpen: root.popup !== null && root.popup.visible
+
     onPopupChanged: {
         if (root.popup)
             root.popup.target = root
@@ -182,7 +186,9 @@ Rectangle {
 
         onEntered: {
             root.hoveredEnter()
-            if (root.tip !== "")
+            // the popup of a module and a tooltip must never share the
+            // layer in front of the bar
+            if (root.tip !== "" && !root.popupOpen)
                 root.showTip()
         }
         onExited: {
@@ -211,6 +217,15 @@ Rectangle {
 
     // Show the tip of the module in the tooltip of the bar.
     function showTip() {
+        if (root.popupOpen)
+            return
+
+        // Another module of this bar may own the open popup. The tooltip is
+        // one window per bar, so it would draw over that popup.
+        const window = root.barWindow
+        if (window && window.activePopup !== undefined && window.activePopup !== null)
+            return
+
         const popup = root.tipPopup
         if (!popup)
             return

@@ -12,6 +12,10 @@ Popup {
     // The text of the tip.
     property string tipText: ""
 
+    // The tooltip does not own the popup layer of the bar; it is the layer
+    // a module popup has to hide.
+    isTooltip: true
+
     duration: 0
 
     content: Label {

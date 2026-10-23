@@ -8,6 +8,7 @@ Module Module.qml
 Motion Motion.qml
 NiriReconnect NiriReconnect.qml
 Popup Popup.qml
+PopupState PopupState.qml
 SettingChoice SettingChoice.qml
 SettingCommand SettingCommand.qml
 SettingNumber SettingNumber.qml

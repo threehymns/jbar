@@ -36,6 +36,11 @@ PanelWindow {
     // up on another.
     readonly property var tooltipPopup: tipPopup
 
+    // The module popup that is open, if any. A module asks the bar before
+    // it shows its tooltip, so a tip never draws over an open popup. A
+    // tooltip does not claim this layer itself.
+    property var activePopup: null
+
     anchors {
         left: true
         top: true

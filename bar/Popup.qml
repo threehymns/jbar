@@ -34,6 +34,13 @@ PopupWindow {
     // The module the popup is anchored to.
     property Module target: null
 
+    // A tooltip is shown above the bar on its own; it does not own the
+    // popup layer, so it does not keep the tooltip of another module away.
+    property bool isTooltip: false
+
+    // The close delay and the reopen transitions.
+    readonly property PopupState state: popupState
+
     // The radius of the frame around the content.
     property int radius: 12
 
@@ -65,9 +72,12 @@ PopupWindow {
         Motion { time: popup.duration }
     }
 
-    // Open the popup.
+    // Open the popup. A close that is still waiting for its delay is
+    // cancelled, so reopening a popup within the delay keeps it open.
     function show() {
         exitTimer.stop()
+        popupState.show()
+        popup.claimLayer()
         popup.visible = true
         popup.progress = 1
     }
@@ -76,20 +86,55 @@ PopupWindow {
     // hidden when it has shrunk. A popup that does not animate its exit, or
     // does not animate at all, is hidden at once.
     function hide() {
+        popupState.hide()
         if (!Settings.popupExitAnimation || popup.duration <= 0) {
+            exitTimer.stop()
             popup.visible = false
             popup.progress = 0
+            popup.releaseLayer()
             return
         }
         popup.progress = 0
         exitTimer.restart()
     }
 
+    // Tell the bar that a module popup owns the layer in front of it. The
+    // tooltip asks the bar before it shows, so a tip never draws over an
+    // open popup, even when the pointer moves back over the module.
+    function claimLayer() {
+        if (popup.isTooltip)
+            return
+        const window = popup.barWindow
+        if (window && window.activePopup !== undefined)
+            window.activePopup = popup
+    }
+
+    // The popup no longer covers the layer. Only the popup that owns the
+    // layer clears it, so the exit of an old popup cannot hide the tip of a
+    // popup that opened after it.
+    function releaseLayer() {
+        if (popup.isTooltip)
+            return
+        const window = popup.barWindow
+        if (window && window.activePopup === popup)
+            window.activePopup = null
+    }
+
+    // The close delay expired: close the popup.
+    PopupState {
+        id: popupState
+        closeDelay: 150
+        onCloseRequested: popup.hide()
+    }
+
     // The popup has shrunk back into the bar.
     Timer {
         id: exitTimer
         interval: Settings.motion(popup.duration)
-        onTriggered: popup.visible = false
+        onTriggered: {
+            popup.visible = false
+            popup.releaseLayer()
+        }
     }
 
     anchor.window: barWindow
@@ -107,33 +152,15 @@ PopupWindow {
     // The pointer is over the module the popup belongs to.
     readonly property bool pointerOverTarget: target !== null && target.hovered
 
-    // The popup is closed when the pointer is over neither the module nor
-    // the popup. The pointer needs a moment to travel from the module into
-    // the popup, so the close is delayed.
-    function closeWhenIdle() {
-        if (pointerInside || pointerOverTarget)
-            return
-        closeTimer.restart()
-    }
+    // The state machine closes the popup when the pointer is over neither
+    // the module nor the popup. The pointer needs a moment to travel from
+    // the module into the popup, so the close is delayed.
+    onPointerOverTargetChanged: popupState.pointerOverTarget = pointerOverTarget
+    onPointerInsideChanged: popupState.pointerInside = pointerInside
 
-    // The pointer left the module.
-    onPointerOverTargetChanged: {
-        if (!pointerOverTarget)
-            closeWhenIdle()
-    }
-
-    // The pointer entered or left the popup.
-    onPointerInsideChanged: {
-        if (pointerInside)
-            closeTimer.stop()
-        else
-            closeWhenIdle()
-    }
-
-    Timer {
-        id: closeTimer
-        interval: 150
-        onTriggered: popup.hide()
+    Component.onCompleted: {
+        popupState.pointerOverTarget = popup.pointerOverTarget
+        popupState.pointerInside = popup.pointerInside
     }
 
     // The frame around the content. It grows out of the bar when the popup
