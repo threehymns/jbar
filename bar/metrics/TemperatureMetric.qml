@@ -19,10 +19,10 @@ Metric {
     // The temperature that is critical, in degrees Celsius.
     property real criticalCelsius: 90
 
-    // The command that reads the value.
-    readonly property var command: ["sh", "-c",
-        "cat /sys/class/thermal/thermal_zone" + thermalZone
-        + "/temp 2>/dev/null | head -1"]
+    // The command that reads the value. head is run directly, not through
+    // a shell, so a poll is one process instead of three.
+    readonly property var command: ["head", "-1",
+        "/sys/class/thermal/thermal_zone" + thermalZone + "/temp"]
 
     // How often the command runs, in milliseconds.
     property int interval: 10000

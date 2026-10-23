@@ -1,12 +1,12 @@
 import QtQuick
 import "../"
-import "../adapters/"
 import "../metrics/"
 
 // Network — port of the waybar "network" module.
 //
 // The metric of the network knows the command and the parsing of nmcli, the
-// module only draws it.
+// module only draws it. The metric and its poller are shared by every bar,
+// see bar/Metrics.qml.
 Module {
     id: root
 
@@ -17,12 +17,7 @@ Module {
     minChars: 2
     dimOnHover: true
 
-    readonly property NetworkMetric metric: NetworkMetric {
-        interval: Settings.networkInterval * 1000
-    }
-
-    // The poll that fills the metric.
-    readonly property Poller poller: Poller { metric: root.metric }
+    readonly property NetworkMetric metric: Metrics.network
 
     onClicked: root.run(Settings.networkManagerCommand)
 

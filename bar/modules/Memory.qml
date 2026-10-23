@@ -1,26 +1,19 @@
 import QtQuick
 import "../"
-import "../adapters/"
 import "../metrics/"
 
 // Memory — port of the waybar "memory" module.
 //
 // The metric of the memory knows the command, the parsing and the
-// thresholds of the waybar config, the module only draws it.
+// thresholds of the waybar config, the module only draws it. The metric and
+// its poller are shared by every bar, see bar/Metrics.qml.
 Module {
     id: root
 
     bg: Theme.memory
     minChars: 7
 
-    readonly property MemoryMetric metric: MemoryMetric {
-        warningThreshold: Settings.memoryWarning
-        criticalThreshold: Settings.memoryCritical
-        interval: Settings.memoryInterval * 1000
-    }
-
-    // The poll that fills the metric.
-    readonly property Poller poller: Poller { metric: root.metric }
+    readonly property MemoryMetric metric: Metrics.memory
 
     fg: root.metric.critical ? Theme.critical
         : (root.metric.warning ? Theme.warning : Theme.mainFg)

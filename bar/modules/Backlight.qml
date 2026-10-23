@@ -1,25 +1,21 @@
 import QtQuick
 import Quickshell
 import "../"
-import "../adapters/"
 import "../metrics/"
 
 // Backlight — port of the waybar "backlight" module.
 //
 // The metric of the brightness knows the command, the parsing and the scale
-// of the glyphs, the module only draws it and scrolls the brightness.
+// of the glyphs, the module only draws it and scrolls the brightness. The
+// poll is shared by every bar, see bar/Metrics.qml; only the write path is
+// per module.
 Module {
     id: root
 
     bg: Theme.backlight
     minChars: 7
 
-    readonly property BacklightMetric metric: BacklightMetric {
-        interval: Settings.backlightInterval * 1000
-    }
-
-    // The poll that fills the metric.
-    readonly property Poller poller: Poller { metric: root.metric }
+    readonly property BacklightMetric metric: Metrics.backlight
 
     // A drag emits a value per step; the writer turns the burst into one
     // write when the value settles.

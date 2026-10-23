@@ -7,8 +7,9 @@ import "../"
 // does it. The warning and the critical thresholds come from the waybar
 // config.
 Metric {
-    // The command that reads the value.
-    readonly property var command: ["sh", "-c", "head -1 /proc/stat"]
+    // The command that reads the value. head is run directly, not through
+    // a shell, so a poll is one process instead of two.
+    readonly property var command: ["head", "-1", "/proc/stat"]
 
     // How often the command runs, in milliseconds.
     property int interval: 10000

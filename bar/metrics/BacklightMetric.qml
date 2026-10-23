@@ -9,7 +9,9 @@ Metric {
     id: root
 
     // The command that reads the value. `-m` prints one machine readable
-    // line: device,class,current,percent%,max.
+    // line: device,class,current,percent%,max. It is run directly, so a
+    // poll is a single process (not the five-process pipeline the waybar
+    // script used).
     readonly property var command: ["brightnessctl", "-m"]
 
     // How often the command runs, in milliseconds.

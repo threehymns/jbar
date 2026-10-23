@@ -8,7 +8,9 @@ Metric {
     // The command that counts the pending updates.
     property string checkCommand: "checkupdates"
 
-    // The command that reads the value.
+    // The command that reads the value. This one keeps its shell: the
+    // check command is a command line from the settings and may use shell
+    // syntax (see README.md).
     readonly property var command: ["sh", "-c",
         checkCommand + " 2>/dev/null | wc -l"]
 
