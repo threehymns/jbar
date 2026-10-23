@@ -26,3 +26,4 @@ singleton Icons Icons.qml
 singleton Metrics Metrics.qml
 singleton Settings Settings.qml
 singleton Theme Theme.qml
+singleton ThemePalette ThemePalette.qml

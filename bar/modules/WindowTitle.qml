@@ -12,8 +12,8 @@ Module {
 
     bg: "transparent"
     // #window { margin: 0 12px; }
-    padLeft: Theme.px(12)
-    padRight: Theme.px(12)
+    padLeft: Theme.spaceLg
+    padRight: Theme.spaceLg
 
     readonly property var window_: Niri.focusedWindow
     readonly property string title: window_ && window_.title !== "" ? window_.title : "Desktop"

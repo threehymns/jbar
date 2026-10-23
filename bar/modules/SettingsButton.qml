@@ -15,8 +15,8 @@ Module {
 
     bg: Theme.mainBg
     fg: Theme.mainFg
-    padLeft: Theme.px(10)
-    padRight: Theme.px(10)
+    padLeft: Theme.modulePadding
+    padRight: Theme.modulePadding
     minChars: 2
     dimOnHover: true
 

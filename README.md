@@ -14,6 +14,7 @@ config.example.json  a template of the settings file (not the live config)
 bar/Bar.qml          the panel and the module layout
 bar/Module.qml       base class of every module (background, padding, mouse)
 bar/Theme.qml        colours, fonts and metrics (theme.css)
+bar/ThemePalette.qml the colour roles of the mecha and light palettes
 bar/Icons.qml        the Nerd Font glyphs of the waybar config
 bar/Label.qml        a text run with the typography of the bar
 bar/Metric.qml       a number of the system, with its states and its glyphs
@@ -59,10 +60,16 @@ bar reads the same values and adding an output starts no new poll.
 
 Everything that is specific to a machine is a setting of the bar: the
 commands the modules run, the thresholds of the metrics, the intervals of
-the polls, the fonts, the colours and the outputs the bar is shown on. Two
-of the settings are about the way the bar moves: *reduced motion* turns the
-animations off, *animate popup exit* lets a popup shrink back into the bar
-when it closes.
+the polls, the fonts, the colours, the palette and the outputs the bar is
+shown on. Two of the settings are about the way the bar moves: *reduced
+motion* turns the animations off, *animate popup exit* lets a popup shrink
+back into the bar when it closes.
+
+The colours of the bar are the roles of a palette (`bar/ThemePalette.qml`):
+`mecha` is the gruvbox-dark palette of the waybar config, `light` is a
+gruvbox-light counterpart. Switching the palette repaints the whole bar
+without a restart. The three colour settings are explicit overrides on top
+of the palette.
 
 The settings live in `config.json` in the config folder of the user,
 `$XDG_CONFIG_HOME/quickshell/jbar/config.json` (usually
@@ -283,13 +290,101 @@ of the audit came from; #7 made it a single `brightnessctl -m` process.
 | `volumeStep`        | int    | `2`     | the step of the volume on scroll, in percent                     |
 | `volumeMax`         | int    | `150`   | the loudest volume, in percent                                   |
 
+### Palette
+
+| Key       | Type   | Default   | Meaning                                          |
+| --------- | ------ | --------- | ------------------------------------------------ |
+| `palette` | string | `"mecha"` | the palette of the bar: `"mecha"` or `"light"` |
+
+The palettes live in `bar/ThemePalette.qml`. A palette is a plain object of
+semantic colour roles, and `bar/Theme.qml` maps those roles to the `Theme.*`
+properties the modules read, so a palette switch repaints the whole bar
+without a restart. `mecha` is the gruvbox-dark palette of the waybar config,
+value for value; `light` is a gruvbox-light counterpart with the same roles.
+
+| Role | Meaning |
+| ---- | ------- |
+| `background` | the background of the bar |
+| `surface`, `surfaceAlt`, `surfaceHigh` | the three module backgrounds, from the base surface to the raised one |
+| `surfaceHover`, `surfaceBorder` | the hover of a control and the border of a popup |
+| `foreground`, `foregroundStrong`, `foregroundMuted` | text, emphasis and secondary text |
+| `foregroundDim`, `hoverForeground` | the dimmed label (60 %) and the dimmed label on hover (75 %) |
+| `accent`, `onAccent` | the accent and the text drawn on an accent block |
+| `warning`, `critical`, `positive` | the state colours (warning, critical, charging) |
+| `outline` | the outline of the bar |
+| `bg0`…`bg4`, `fg0`…`fg4` | the gruvbox ramp, kept as named roles |
+| `red`…`gray` | the eight terminal colours of the waybar theme |
+| `workspaces`, `temperature`, … `battery` | the background of each module that has one |
+
+The `accentColor`, `backgroundColor` and `foregroundColor` settings below are
+explicit overrides: while they are unset they follow the palette. When the
+palette changes and one of them still holds the previous palette's default,
+`Settings.set()` moves it to the default of the new palette. A colour the
+user picked is never overwritten. `onAccent` follows `backgroundColor`, so
+the text on the accent block of the distribution logo keeps matching the bar.
+
 ### Colours
+
+The defaults below are the values of the `mecha` palette; the `light` palette
+has its own defaults. A stored value is an override that does not change when
+the palette changes.
 
 | Key               | Type   | Default     | Meaning                                   |
 | ----------------- | ------ | ----------- | ----------------------------------------- |
 | `accentColor`     | string | `"#83a598"` | the accent, the highlighted parts of the bar |
 | `backgroundColor` | string | `"#1d2021"` | the background of the bar                 |
 | `foregroundColor` | string | `"#ebdbb2"` | the text of the bar                       |
+
+## Theme tokens
+
+Everything the bar draws derives from tokens of `bar/Theme.qml`. A token is
+defined in the 16 px design and scaled by `Theme.px()`, which rounds
+`value * Theme.scale` and `Theme.scale` is `fontSize / 16`. A design size that
+belongs to one module only — the 5 px padding of the Bluetooth module, the
+24 px cover art — stays written as `Theme.px(<design px>)`.
+
+### Typography
+
+| Token | Value at 16 px | Meaning |
+| ----- | -------------- | ------- |
+| `fontSize`, `iconSize`, `fontSizeBar` | `16` | the bar text and icon size, from the font size setting |
+| `fontSizeSecondary` | `11` | the secondary line of a module (the MPRIS artist) |
+| `fontSizeTitle` | `13` | a popup title or a tooltip |
+| `fontFamily`, `iconFont` | — | the text and Nerd Font families |
+
+### Spacing
+
+| Token | Value at 16 px | Meaning |
+| ----- | -------------- | ------- |
+| `spaceXs`, `spaceSm`, `spaceMd`, `spaceLg`, `spaceXl` | `2`, `4`, `8`, `12`, `16` | the spacing steps |
+| `rowPadding`, `rowHeight` | `8`, `31` | the padding and the height of a bar row |
+| `modulePadding`, `moduleRadius` | `10`, `16` | the horizontal module padding and the hover radius |
+| `popupPadding`, `borderWidth` | `20`, `2` | the space inside a popup and the width of its frame |
+| `workspaceCell`, `workspacePadding`, `workspaceActiveSize` | `31`, `1`, `20` | the workspace cell and its glyph |
+| `charWidth`, `labelSpacing`, `minWidth(chars)` | `7.2` | text measurement for the waybar min-lengths |
+
+### Radii
+
+| Token | Value at 16 px | Meaning |
+| ----- | -------------- | ------- |
+| `radiusSm` | `4` | a small control, such as a slider track |
+| `radiusMd` | `8` | a row of a popup menu |
+| `radiusLg` | `12` | the frame of a popup |
+| `moduleRadius` | `16` | the fully rounded hover background of a module |
+
+### Adding a palette
+
+1. Add its object to `palettes` in `bar/ThemePalette.qml` with every role in
+   `roles`. The test compares the roles of every palette and fails on a
+   missing or an extra one.
+2. Add its name to `names` in the same file.
+3. Add the name to the `palette` choices and labels in the `Colours` section
+   of `Settings.sections`.
+4. Run `./tests/check.sh`. `tests/tst_theme.qml` also checks the contrast of
+   the light palette and the scaling of the tokens.
+
+No module changes are needed: a module reads a `Theme.*` role, and the role
+follows the selected palette.
 
 ## Tests
 
@@ -328,12 +423,15 @@ They are documented instead of silenced:
 * `unused-imports` infos — these imports name no type of the file; they are
   harmless.
 
-The metrics of the systems and the settings of the bar are plain objects
-without any I/O, so they can be tested without a bar and without a command.
-The command preview and its test state are the same kind of object. The
-runtime runner is loaded lazily by the settings page, so the tests never
-load `Quickshell.Io` through a command row. The two commands also work on
-their own:
+The metrics of the systems, the settings of the bar and the palettes are
+plain objects without any I/O, so they can be tested without a bar and
+without a command. The command preview and its test state are the same
+kind of object. The runtime runner is loaded lazily by the settings page,
+so the tests never load `Quickshell.Io` through a command row.
+`tests/tst_theme.qml` pins the mecha palette to the colours of the waybar
+config, checks that every palette defines every role, switches the palette at
+runtime and verifies the light contrast and the token scaling. The two
+commands also work on their own:
 
 ```bash
 /usr/lib/qt6/bin/qmltestrunner -input tests

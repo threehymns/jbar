@@ -124,7 +124,7 @@ Module {
 
                     width: 168
                     height: 30
-                    radius: 8
+                    radius: Theme.radiusMd
                     color: entryMouse.containsMouse ? Theme.hoverBg : "transparent"
 
                     Text {
