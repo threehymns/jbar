@@ -25,6 +25,31 @@ Item {
             width: scroll.availableWidth - 2 * page.padding
             spacing: 12
 
+            // The last failure to write the config file. The values are
+            // still in memory, so the page stays usable; the next successful
+            // save clears the row.
+            Rectangle {
+                visible: Settings.saveError !== ""
+                width: sections.width
+                height: errorText.implicitHeight + 12
+                radius: 6
+                color: Theme.bg1
+                border.width: 1
+                border.color: Theme.critical
+
+                Label {
+                    id: errorText
+                    anchors.left: parent.left
+                    anchors.leftMargin: 8
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: parent.width - 16
+                    text: "Settings were not saved: " + Settings.saveError
+                    color: Theme.critical
+                    pixelSize: 11
+                    wrapMode: Text.Wrap
+                }
+            }
+
             Repeater {
                 model: Settings.sections
 

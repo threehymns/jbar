@@ -55,6 +55,10 @@ TestCase {
         compare(Settings.motion(150), 150)
     }
 
+    function test_the_default_outputs_show_every_output() {
+        compare(Settings.outputs, "")
+    }
+
     function test_the_sections_name_the_settings_of_the_page() {
         // every entry of the page names a setting that exists
         for (let i = 0; i < Settings.sections.length; i++) {
