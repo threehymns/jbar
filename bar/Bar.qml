@@ -14,11 +14,20 @@ import "modules/"
 PanelWindow {
     id: bar
 
+    // The names of the connected screens.
+    readonly property var connectedOutputs: {
+        const names = []
+        for (let i = 0; i < Quickshell.screens.length; i++)
+            names.push(Quickshell.screens[i].name)
+        return names
+    }
+
     // waybar's "output" option: the bar is only shown on these outputs.
-    // The outputs are a setting of the bar, an empty list shows the bar on
-    // every output.
-    readonly property var outputs: Settings.outputs.split(",")
-        .map(output => output.trim()).filter(output => output !== "")
+    // The outputs are a setting of the bar; an empty list shows the bar on
+    // every output, and a list that matches no connected screen falls back
+    // to every output so the settings stay reachable.
+    readonly property var outputPlan: BarOutputs.plan(Settings.outputs,
+        root.connectedOutputs)
 
     readonly property string outputName: screen ? screen.name : ""
 
@@ -38,7 +47,10 @@ PanelWindow {
     aboveWindows: true
     color: "transparent"
 
-    visible: outputs.length === 0 || outputs.indexOf(outputName) !== -1
+    visible: BarOutputs.shows(root.outputPlan, root.outputName)
+
+    onOutputPlanChanged: BarOutputs.warn(root.outputPlan)
+    Component.onCompleted: BarOutputs.warn(root.outputPlan)
 
     Rectangle {
         anchors.fill: parent

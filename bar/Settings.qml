@@ -24,14 +24,21 @@ QtObject {
     property var stored: ({})
 
     // The values changed. The adapter of the config file listens to it and
-    // writes them to the file.
-    signal changed()
+    // writes them to the file. The key is the setting that changed, so the
+    // adapter only writes the values the user edited.
+    signal changed(string key)
+
+    // The last failure to write the config file, empty when the file is in
+    // sync. It is not a setting: the adapter sets it so the page can show
+    // that a change was not persisted.
+    property string saveError: ""
 
     // ── the values ──────────────────────────────────────────────────────────
 
     // The outputs the bar is shown on, separated by commas. An empty value
-    // shows the bar on every output.
-    property string outputs: root.value("outputs", "eDP-1, HDMI-A-1, DP-2")
+    // shows the bar on every output; a list that matches no connected screen
+    // falls back to every output as well.
+    property string outputs: root.value("outputs", "")
 
     // The font of the text of the bar.
     property string fontFamily: root.value("fontFamily", "Geist")
@@ -243,7 +250,7 @@ QtObject {
         const next = Object.assign({}, root.stored)
         next[key] = val
         root.stored = next
-        root.changed()
+        root.changed(key)
     }
 
     // Replace the values with the ones that were read from the file.
