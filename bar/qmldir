@@ -9,6 +9,7 @@ Motion Motion.qml
 NiriReconnect NiriReconnect.qml
 Popup Popup.qml
 SettingChoice SettingChoice.qml
+SettingCommand SettingCommand.qml
 SettingNumber SettingNumber.qml
 SettingRow SettingRow.qml
 SettingText SettingText.qml

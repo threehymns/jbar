@@ -14,8 +14,8 @@ Item {
     // The name of the setting that is shown.
     property string label: ""
 
-    // The kind of the value: "text", "color", "number", "toggle" or
-    // "choice".
+    // The kind of the value: "text", "color", "command", "number",
+    // "toggle" or "choice".
     property string type: "text"
 
     // The smallest and the biggest value of a number.
@@ -35,7 +35,8 @@ Item {
     // The value of the setting.
     readonly property var value: root.key === "" ? undefined : Settings[root.key]
 
-    implicitHeight: 28
+    // A command row carries the argument preview below its field.
+    implicitHeight: root.type === "command" ? 44 : 28
 
     // Write a new value to the setting.
     function store(val) {
@@ -63,6 +64,17 @@ Item {
         value: root.value === undefined ? "" : String(root.value)
         hint: root.hint
         swatch: root.type === "color"
+        onEdited: text => root.store(text)
+    }
+
+    // The field and the argument preview of a command.
+    SettingCommand {
+        anchors.right: parent.right
+        anchors.top: parent.top
+        visible: root.type === "command"
+        width: parent.width * 0.5
+        value: root.value === undefined ? "" : String(root.value)
+        hint: root.hint
         onEdited: text => root.store(text)
     }
 

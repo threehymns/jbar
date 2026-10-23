@@ -251,8 +251,16 @@ Rectangle {
             root.openPopup()
     }
 
-    // Run a command line, the way it is written in the settings.
+    // Run a command line, the way it is written in the settings. A line
+    // with shell syntax is refused: it would run as a pile of literal
+    // arguments instead of the pipeline or variable expansion the user
+    // wrote, so the error is logged and the command is not started.
     function run(line) {
+        const error = Settings.commandError(line)
+        if (error !== "") {
+            console.warn("[command] " + error + ": " + line)
+            return
+        }
         const args = Settings.command(line)
         if (args.length === 0)
             return

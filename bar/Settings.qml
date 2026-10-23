@@ -170,12 +170,13 @@ QtObject {
         {
             title: "Commands",
             entries: [
-                { key: "launcherCommand", label: "Launcher", type: "text" },
-                { key: "powerMenuCommand", label: "Power menu", type: "text" },
-                { key: "networkManagerCommand", label: "Network manager", type: "text" },
-                { key: "bluetoothManagerCommand", label: "Bluetooth manager", type: "text" },
-                { key: "updatesCommand", label: "Updates", type: "text" },
-                { key: "updatesCheckCommand", label: "Update check", type: "text" }
+                { key: "launcherCommand", label: "Launcher", type: "command" },
+                { key: "powerMenuCommand", label: "Power menu", type: "command" },
+                { key: "networkManagerCommand", label: "Network manager", type: "command" },
+                { key: "bluetoothManagerCommand", label: "Bluetooth manager", type: "command" },
+                { key: "updatesCommand", label: "Updates", type: "command" },
+                { key: "updatesCheckCommand", label: "Update check", type: "text",
+                    hint: "run through sh" }
             ]
         },
         {
@@ -260,18 +261,159 @@ QtObject {
         root.stored = values
     }
 
-    // Split a command line into the arguments of a process. A part of it in
-    // quotes stays one argument.
-    function command(line) {
+    // Split a command line into the arguments of a process.
+    //
+    // The split is a small state machine rather than a regular expression:
+    // a quote may start anywhere in an argument, so `--title="My Terminal"`
+    // is one argument with the quotes removed. Backslash escapes the next
+    // character outside quotes and inside double quotes; single quotes are
+    // literal, the way a shell treats them. An empty quoted argument is an
+    // argument, and an unmatched quote is an error instead of a guess.
+    function tokenize(line) {
         const args = []
-        const pattern = /"([^"]*)"|'([^']*)'|(\S+)/g
-        let match = pattern.exec(line)
-        while (match !== null) {
-            args.push(match[1] !== undefined ? match[1]
-                : (match[2] !== undefined ? match[2] : match[3]))
-            match = pattern.exec(line)
+        let current = ""
+        let inToken = false
+        let quote = ""
+        let escaped = false
+
+        for (let i = 0; i < line.length; i++) {
+            const ch = line.charAt(i)
+
+            if (escaped) {
+                current += ch
+                escaped = false
+                continue
+            }
+
+            if (quote === "'") {
+                if (ch === "'")
+                    quote = ""
+                else
+                    current += ch
+                continue
+            }
+
+            if (quote === '"') {
+                if (ch === "\\")
+                    escaped = true
+                else if (ch === '"')
+                    quote = ""
+                else
+                    current += ch
+                continue
+            }
+
+            if (ch === "\\") {
+                escaped = true
+                inToken = true
+            } else if (ch === '"' || ch === "'") {
+                quote = ch
+                inToken = true
+            } else if (ch === " " || ch === "\t" || ch === "\n" || ch === "\r") {
+                if (inToken) {
+                    args.push(current)
+                    current = ""
+                    inToken = false
+                }
+            } else {
+                current += ch
+                inToken = true
+            }
         }
-        return args
+
+        if (escaped)
+            return { args: [], error: "the command ends with a backslash that escapes nothing" }
+        if (quote === '"')
+            return { args: [], error: "unmatched double quote" }
+        if (quote === "'")
+            return { args: [], error: "unmatched single quote" }
+        if (inToken)
+            args.push(current)
+        return { args: args, error: "" }
+    }
+
+    // The arguments of a command line, or no arguments when the line is not
+    // valid. commandError() says what is wrong with it.
+    function command(line) {
+        return root.tokenize(line).args
+    }
+
+    // The reason a command line will not be run, or an empty string when it
+    // is valid.
+    //
+    // Commands run directly, not through a shell. Shell syntax would be
+    // split into ordinary arguments and silently do the wrong thing, so it
+    // is rejected before launch instead. Quoting or escaping a character
+    // passes it literally and is allowed.
+    function commandError(line) {
+        const parsed = root.tokenize(line)
+        if (parsed.error !== "")
+            return parsed.error
+
+        const tradeoff = "commands run directly, not through a shell"
+        let quote = ""
+        let escaped = false
+        let atTokenStart = true
+
+        for (let i = 0; i < line.length; i++) {
+            const ch = line.charAt(i)
+            const next = i + 1 < line.length ? line.charAt(i + 1) : ""
+
+            if (escaped) {
+                escaped = false
+                atTokenStart = false
+                continue
+            }
+
+            if (quote === "'") {
+                if (ch === "'") {
+                    quote = ""
+                    atTokenStart = false
+                }
+                continue
+            }
+
+            if (quote === '"') {
+                if (ch === "\\")
+                    escaped = true
+                else if (ch === '"')
+                    quote = ""
+                else if (ch === "`")
+                    return "command substitution is not supported; " + tradeoff
+                else if (ch === "$" && /[A-Za-z0-9_{(@*#?$!-]/.test(next))
+                    return "variables are not expanded; " + tradeoff
+                continue
+            }
+
+            if (ch === "\\") {
+                escaped = true
+                atTokenStart = false
+            } else if (ch === '"' || ch === "'") {
+                quote = ch
+                atTokenStart = false
+            } else if (ch === "|") {
+                return "pipes are not supported; " + tradeoff
+            } else if (ch === "&") {
+                return "&& and & are not supported; " + tradeoff
+            } else if (ch === ";") {
+                return "semicolons are not supported; " + tradeoff
+            } else if (ch === "<" || ch === ">") {
+                return "redirection is not supported; " + tradeoff
+            } else if (ch === "`") {
+                return "command substitution is not supported; " + tradeoff
+            } else if (ch === "$" && /[A-Za-z0-9_{(@*#?$!-]/.test(next)) {
+                return "variables are not expanded; " + tradeoff
+            } else if (ch === "~" && atTokenStart) {
+                return "~ is not expanded; " + tradeoff
+            } else {
+                // a shell also expands ~ at the start of the value of an
+                // assignment, such as --prefix=~/bin
+                atTokenStart = ch === " " || ch === "\t" || ch === "\n"
+                    || ch === "\r" || ch === "="
+            }
+        }
+
+        return ""
     }
 
     // The duration of an animation of the bar. It is zero when the user

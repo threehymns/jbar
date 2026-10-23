@@ -79,12 +79,27 @@ in `config.example.json`. Keys that are not listed here are kept in the file
 but have no effect on the bar.
 
 The type of a colour is a string with a `#rrggbb` value or a colour name Qt
-knows. A command is a command line, split into arguments at whitespace;
-single or double quotes keep a part together. Commands are run directly and
-not through a shell, so pipes, variables and `~` do not work in them. The
-one exception is `updatesCheckCommand`, which the metric runs as
+knows.
+
+A command is split into arguments at whitespace. Single or double quotes
+may appear anywhere in an argument and keep their part together, so
+`kitty --title="My Terminal"` passes one argument `--title=My Terminal`.
+A backslash escapes the next character outside quotes and inside double
+quotes; single quotes are literal. An empty quoted argument is an argument
+of its own, adjacent quoted and unquoted parts form one argument, and an
+unmatched quote is an error.
+
+Commands are run directly and not through a shell. Shell syntax that would
+be split into ordinary arguments — pipes, `&&` or `&`, `;`, redirection
+with `<` or `>`, backticks or `$(...)`, `$VAR` or `${...}`, and a leading
+`~` — is rejected before launch, and the settings page shows the reason.
+Quote or escape one of those characters to pass it literally. The one
+exception is `updatesCheckCommand`, which the metric runs as
 `sh -c "<command> 2>/dev/null | wc -l"`: it may use shell syntax, and its
 output is counted line by line as the number of pending updates.
+
+The settings page shows the exact argument vector below every command
+field, so the split can be checked before the command is used.
 
 `outputs` is a comma separated list of output names (`eDP-1`, `HDMI-A-1`,
 `DP-2`). Spaces around a name are ignored. An empty string shows the bar on

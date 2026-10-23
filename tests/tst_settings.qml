@@ -28,6 +28,103 @@ TestCase {
         compare(Settings.command("   "), [])
     }
 
+    function test_quoted_arguments_data() {
+        return [
+            { tag: "double quote inline", line: 'kitty --title="My Terminal"',
+                args: ["kitty", "--title=My Terminal"] },
+            { tag: "single quote inline", line: "kitty --title='My Terminal'",
+                args: ["kitty", "--title=My Terminal"] },
+            { tag: "unquoted and quoted parts", line: 'cmd pre"fix suffix"',
+                args: ["cmd", "prefix suffix"] },
+            { tag: "quoted parts next to each other", line: 'cmd "a""b"',
+                args: ["cmd", "ab"] },
+            { tag: "empty double quoted argument", line: 'cmd ""',
+                args: ["cmd", ""] },
+            { tag: "empty single quoted argument", line: "cmd ''",
+                args: ["cmd", ""] },
+            { tag: "empty quoted part in a word", line: 'cmd a""b',
+                args: ["cmd", "ab"] },
+            { tag: "escaped space", line: "cmd hello\\ world",
+                args: ["cmd", "hello world"] },
+            { tag: "escaped quote outside quotes", line: 'cmd \\"quoted\\"',
+                args: ["cmd", '"quoted"'] },
+            { tag: "escaped quote inside double quotes", line: 'cmd "say \\"hi\\""',
+                args: ["cmd", 'say "hi"'] },
+            { tag: "escaped backslash inside double quotes", line: 'cmd "a\\\\b"',
+                args: ["cmd", "a\\b"] },
+            { tag: "backslash is literal in single quotes", line: "cmd 'a\\b'",
+                args: ["cmd", "a\\b"] },
+            { tag: "tabs and newlines separate arguments", line: "cmd\ta\nb",
+                args: ["cmd", "a", "b"] }
+        ]
+    }
+
+    function test_quoted_arguments(data) {
+        compare(Settings.command(data.line), data.args)
+        compare(Settings.commandError(data.line), "")
+    }
+
+    function test_unmatched_quotes_data() {
+        return [
+            { tag: "double quote", line: 'cmd "unterminated' },
+            { tag: "single quote", line: "cmd 'unterminated" },
+            { tag: "quote at the start", line: '"unterminated' },
+            { tag: "quote in the middle", line: 'cmd a "b c' }
+        ]
+    }
+
+    function test_unmatched_quotes(data) {
+        compare(Settings.command(data.line), [])
+        verify(/quote/.test(Settings.commandError(data.line)),
+            Settings.commandError(data.line))
+    }
+
+    function test_a_trailing_backslash_is_an_error() {
+        compare(Settings.command("cmd foo\\"), [])
+        verify(Settings.commandError("cmd foo\\") !== "")
+    }
+
+    function test_shell_syntax_is_rejected_data() {
+        return [
+            { tag: "pipe", line: "ls | grep foo" },
+            { tag: "or list", line: "ls || true" },
+            { tag: "and list", line: "ls && pwd" },
+            { tag: "background", line: "ls &" },
+            { tag: "semicolon", line: "ls; pwd" },
+            { tag: "output redirection", line: "ls > out" },
+            { tag: "input redirection", line: "ls < in" },
+            { tag: "backtick substitution", line: "echo `date`" },
+            { tag: "dollar substitution", line: "echo $(date)" },
+            { tag: "variable", line: "echo $HOME" },
+            { tag: "braced variable", line: "echo ${HOME}" },
+            { tag: "quoted variable", line: 'echo "$HOME"' },
+            { tag: "positional parameter", line: "echo $1" },
+            { tag: "leading tilde", line: "ls ~/src" },
+            { tag: "tilde after whitespace", line: "ls foo ~/src" },
+            { tag: "tilde in an assignment", line: "cmd --prefix=~/bin" }
+        ]
+    }
+
+    function test_shell_syntax_is_rejected(data) {
+        verify(Settings.commandError(data.line) !== "",
+            data.tag + " was accepted: " + data.line)
+    }
+
+    function test_quoted_shell_characters_are_literal_data() {
+        return [
+            { tag: "pipe in double quotes", line: 'notify-send "a | b"' },
+            { tag: "and list in double quotes", line: 'notify-send "a && b"' },
+            { tag: "variable in single quotes", line: "echo '$HOME'" },
+            { tag: "escaped variable", line: "echo \\$HOME" },
+            { tag: "escaped pipe", line: "echo a \\| b" },
+            { tag: "dollar at the end of a quoted word", line: 'echo "cost: $"' }
+        ]
+    }
+
+    function test_quoted_shell_characters_are_literal(data) {
+        compare(Settings.commandError(data.line), "", data.tag)
+    }
+
     function test_a_value_that_was_never_stored_has_its_default() {
         compare(Settings.value("aSettingNobodyStored", 42), 42)
     }
