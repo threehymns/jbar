@@ -171,12 +171,14 @@ QtObject {
             title: "Commands",
             entries: [
                 { key: "launcherCommand", label: "Launcher", type: "command" },
-                { key: "powerMenuCommand", label: "Power menu", type: "command" },
+                { key: "powerMenuCommand", label: "Power menu", type: "command",
+                    destructive: true },
                 { key: "networkManagerCommand", label: "Network manager", type: "command" },
                 { key: "bluetoothManagerCommand", label: "Bluetooth manager", type: "command" },
-                { key: "updatesCommand", label: "Updates", type: "command" },
+                { key: "updatesCommand", label: "Updates", type: "command",
+                    destructive: true },
                 { key: "updatesCheckCommand", label: "Update check", type: "text",
-                    hint: "run through sh" }
+                    hint: "run through sh -c, not directly" }
             ]
         },
         {

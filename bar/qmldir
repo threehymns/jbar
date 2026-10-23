@@ -1,5 +1,7 @@
 Bar Bar.qml
 BluetoothState BluetoothState.qml
+CommandPreview CommandPreview.qml
+CommandRunner CommandRunner.qml
 DrawerGroup DrawerGroup.qml
 Label Label.qml
 LazyContent LazyContent.qml

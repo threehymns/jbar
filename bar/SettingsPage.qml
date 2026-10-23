@@ -86,6 +86,8 @@ Item {
                             choices: modelData.choices !== undefined ? modelData.choices : []
                             labels: modelData.labels !== undefined ? modelData.labels : []
                             hint: modelData.hint !== undefined ? modelData.hint : ""
+                            destructive: modelData.destructive !== undefined
+                                ? modelData.destructive : false
                         }
                     }
                 }

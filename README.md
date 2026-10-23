@@ -24,6 +24,8 @@ bar/Settings.qml     the values of the bar the user can change
 bar/SettingsPage.qml the page of the settings
 bar/SettingsWindow.qml the settings in a window of their own
 bar/SettingRow.qml   a row of the settings page
+bar/CommandPreview.qml the state of a command test, without I/O
+bar/CommandRunner.qml  runs one command test with a timeout
 bar/DrawerGroup.qml  a group of modules, the hidden ones hidden
 bar/Motion.qml       an animation of the bar
 bar/Popup.qml        a popup of the bar, anchored below its module
@@ -155,17 +157,44 @@ quotes; single quotes are literal. An empty quoted argument is an argument
 of its own, adjacent quoted and unquoted parts form one argument, and an
 unmatched quote is an error.
 
-Commands are run directly and not through a shell. Shell syntax that would
-be split into ordinary arguments — pipes, `&&` or `&`, `;`, redirection
-with `<` or `>`, backticks or `$(...)`, `$VAR` or `${...}`, and a leading
-`~` — is rejected before launch, and the settings page shows the reason.
-Quote or escape one of those characters to pass it literally. The one
-exception is `updatesCheckCommand`, which the metric runs as
-`sh -c "<command> 2>/dev/null | wc -l"`: it may use shell syntax, and its
+Commands are run directly and not through a shell. That is the trade-off:
+the argument vector is exactly what the page shows, with no word splitting,
+globbing, pipes, variables, command substitution or `~` expansion, and a
+setting cannot turn into a shell injection. Shell syntax that would be
+split into ordinary arguments — pipes, `&&` or `&`, `;`, redirection with
+`<` or `>`, backticks or `$(...)`, `$VAR` or `${...}`, and a leading `~` —
+is rejected before launch, and the settings page shows the reason. Quoted
+shell text is literal to jbar: `notify-send "a | b"` passes the pipe as
+part of an argument. To opt into shell semantics, run a shell explicitly:
+
+```json
+"launcherCommand": "sh -c 'my-launcher --flag | grep something'"
+```
+
+The single-quoted line is one argument of `sh`; the shell then parses it.
+The one setting that the bar itself runs through a shell is
+`updatesCheckCommand`: the updates metric runs it as
+`sh -c "<command> 2>/dev/null | wc -l"`, so it may use shell syntax, and its
 output is counted line by line as the number of pending updates.
 
 The settings page shows the exact argument vector below every command
-field, so the split can be checked before the command is used.
+field, so the split can be checked before the command is used. Each command
+row also has a Test action. Test runs exactly the argv shown — not a
+different shell interpretation of the line — and reports success or
+failure in the page, with the exit code and a short preview of stdout and
+stderr. The preview is cut to a few lines and a fixed number of characters
+per stream; the full text is kept in the result but the page does not show
+it. A test runs the real command and is not sandboxed: it can launch an
+application, open a window or change something on the machine, so use a
+harmless command when checking the split. A test that runs longer than 10
+seconds is stopped with `SIGTERM`, and the button turns into Cancel while
+it runs.
+
+The power menu and the updates command are destructive, so they do not run
+on the first click. The Test button turns into Run anyway for five seconds;
+a second click within that window runs the command, otherwise the
+confirmation expires and the next click only arms it again. This is an
+inline confirmation, not a dialog.
 
 `outputs` is a comma separated list of output names (`eDP-1`, `HDMI-A-1`,
 `DP-2`). Spaces around a name are ignored. An empty string shows the bar on
@@ -292,12 +321,19 @@ They are documented instead of silenced:
   components in the drawers, the calendar, the settings page and the
   tooltip read the ids of their outer component. These are style warnings;
   they do not change the behaviour and can be fixed file by file.
+* `signal-handler-parameters` (`Process.exited`) — qmllint cannot resolve
+  the `QProcess::ExitStatus` type in the qmltypes of Quickshell 0.3.1. The
+  handler still receives the exit code; the bar and the settings page use
+  only that.
 * `unused-imports` infos — these imports name no type of the file; they are
   harmless.
 
 The metrics of the systems and the settings of the bar are plain objects
 without any I/O, so they can be tested without a bar and without a command.
-The two commands also work on their own:
+The command preview and its test state are the same kind of object. The
+runtime runner is loaded lazily by the settings page, so the tests never
+load `Quickshell.Io` through a command row. The two commands also work on
+their own:
 
 ```bash
 /usr/lib/qt6/bin/qmltestrunner -input tests
