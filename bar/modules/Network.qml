@@ -17,13 +17,14 @@ Module {
     minChars: 2
     dimOnHover: true
 
-    readonly property NetworkMetric metric: NetworkMetric {}
+    readonly property NetworkMetric metric: NetworkMetric {
+        interval: Settings.networkInterval * 1000
+    }
 
     // The poll that fills the metric.
     readonly property Poller poller: Poller { metric: root.metric }
 
-    onClicked: Quickshell.execDetached(["xdg-open",
-        "vicinae://launch/@dagimg-dot/store.vicinae.wifi-commander/scan-wifi"])
+    onClicked: root.run(Settings.networkManagerCommand)
 
     iconText: root.metric.icon
 }

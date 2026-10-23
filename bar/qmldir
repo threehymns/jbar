@@ -3,7 +3,15 @@ DrawerGroup DrawerGroup.qml
 Label Label.qml
 Metric Metric.qml
 Module Module.qml
+Motion Motion.qml
 Popup Popup.qml
+SettingChoice SettingChoice.qml
+SettingNumber SettingNumber.qml
+SettingRow SettingRow.qml
+SettingText SettingText.qml
+SettingToggle SettingToggle.qml
+SettingsPage SettingsPage.qml
 TooltipPopup TooltipPopup.qml
 singleton Icons Icons.qml
+singleton Settings Settings.qml
 singleton Theme Theme.qml

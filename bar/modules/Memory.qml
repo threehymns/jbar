@@ -13,7 +13,11 @@ Module {
     bg: Theme.memory
     minChars: 7
 
-    readonly property MemoryMetric metric: MemoryMetric {}
+    readonly property MemoryMetric metric: MemoryMetric {
+        warningThreshold: Settings.memoryWarning
+        criticalThreshold: Settings.memoryCritical
+        interval: Settings.memoryInterval * 1000
+    }
 
     // The poll that fills the metric.
     readonly property Poller poller: Poller { metric: root.metric }

@@ -11,7 +11,7 @@ Metric {
         "awk '/^MemTotal:/{t=$2} /^MemAvailable:/{a=$2} END{print t, a}' /proc/meminfo"]
 
     // How often the command runs, in milliseconds.
-    readonly property int interval: 10000
+    property int interval: 10000
 
     // The thresholds of the waybar config.
     warningThreshold: 75

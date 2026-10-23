@@ -216,14 +216,14 @@ Rectangle {
             return
         popup.target = root
         popup.tipText = root.tip
-        popup.visible = true
+        popup.show()
     }
 
     // Hide the tip of the module.
     function hideTip() {
         const popup = root.tipPopup
         if (popup)
-            popup.visible = false
+            popup.hide()
     }
 
     // ── the popup of the module ────────────────────────────────────────────
@@ -234,13 +234,13 @@ Rectangle {
         // each other
         root.hideTip()
         if (root.popup)
-            root.popup.visible = true
+            root.popup.show()
     }
 
     // Close the popup of the module.
     function closePopup() {
         if (root.popup)
-            root.popup.visible = false
+            root.popup.hide()
     }
 
     // Open the popup of the module, or close it if it is open.
@@ -249,5 +249,13 @@ Rectangle {
             root.closePopup()
         else
             root.openPopup()
+    }
+
+    // Run a command line, the way it is written in the settings.
+    function run(line) {
+        const args = Settings.command(line)
+        if (args.length === 0)
+            return
+        Quickshell.execDetached(args)
     }
 }

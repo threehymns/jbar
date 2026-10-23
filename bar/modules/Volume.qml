@@ -49,25 +49,27 @@ DrawerGroup {
     }
 
     // The device that slides out of the group.
-    hidden: Module {
-        id: input
+    hidden: [
+        Module {
+            id: input
 
-        bg: Theme.volume
-        minChars: 7
-        stateDim: input.sourceMuted
+            bg: Theme.volume
+            minChars: 7
+            stateDim: input.sourceMuted
 
-        readonly property var source: Pipewire.defaultAudioSource
-        readonly property bool sourceMuted: source !== null && source.audio !== null
-            && source.audio.muted
-        readonly property int volume: source !== null && source.audio !== null
-            ? Math.round(source.audio.volume * 100) : 0
+            readonly property var source: Pipewire.defaultAudioSource
+            readonly property bool sourceMuted: source !== null && source.audio !== null
+                && source.audio.muted
+            readonly property int volume: source !== null && source.audio !== null
+                ? Math.round(source.audio.volume * 100) : 0
 
-        onClicked: root.setSourceMuted()
-        onScrolled: direction => root.changeSourceVolume(direction)
+            onClicked: root.setSourceMuted()
+            onScrolled: direction => root.changeSourceVolume(direction)
 
-        iconText: input.sourceMuted ? Icons.micMuted : Icons.mic
-        labelText: input.volume + "%"
-    }
+            iconText: input.sourceMuted ? Icons.micMuted : Icons.mic
+            labelText: input.volume + "%"
+        }
+    ]
 
     // Tracking the nodes keeps their audio interface bound, without it the
     // volume of a node stays at zero.
@@ -88,16 +90,18 @@ DrawerGroup {
     function changeSinkVolume(direction) {
         if (!output.sink || !output.sink.audio)
             return
-        const step = 0.02
+        const step = Settings.volumeStep / 100
         output.sink.audio.volume = Math.max(0,
-            Math.min(1.5, output.sink.audio.volume + (direction > 0 ? step : -step)))
+            Math.min(Settings.volumeMax / 100,
+                output.sink.audio.volume + (direction > 0 ? step : -step)))
     }
 
     function changeSourceVolume(direction) {
         if (!input.source || !input.source.audio)
             return
-        const step = 0.02
+        const step = Settings.volumeStep / 100
         input.source.audio.volume = Math.max(0,
-            Math.min(1.5, input.source.audio.volume + (direction > 0 ? step : -step)))
+            Math.min(Settings.volumeMax / 100,
+                input.source.audio.volume + (direction > 0 ? step : -step)))
     }
 }

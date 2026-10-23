@@ -1,0 +1,9 @@
+{
+  "mcp": {
+    "quickshell": {
+      "type": "local",
+      "command": ["uvx", "quickshell-mcp"],
+      "enabled": true
+    }
+  }
+}

@@ -11,7 +11,7 @@ Metric {
         "brightnessctl -m 2>/dev/null | grep -oE '[0-9]+%' | tr -d '%' | head -1"]
 
     // How often the command runs, in milliseconds.
-    readonly property int interval: 2000
+    property int interval: 2000
 
     parse: output => {
         const value = parseInt(output.trim())

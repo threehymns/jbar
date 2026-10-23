@@ -17,12 +17,15 @@ Module {
     minChars: 1
     dimOnHover: true
 
-    readonly property UpdatesMetric metric: UpdatesMetric {}
+    readonly property UpdatesMetric metric: UpdatesMetric {
+        checkCommand: Settings.updatesCheckCommand
+        interval: Settings.updatesInterval * 60000
+    }
 
     // The poll that fills the metric.
     readonly property Poller poller: Poller { metric: root.metric }
 
-    onClicked: Quickshell.execDetached(["kitty", "-T", "Updates", "yay", "-Syua"])
+    onClicked: root.run(Settings.updatesCommand)
 
     iconText: Icons.update
     labelText: root.metric.value + ""

@@ -15,8 +15,8 @@ Module {
     bg: Theme.battery
     minChars: 7
 
-    property int warningThreshold: 20
-    property int criticalThreshold: 10
+    property int warningThreshold: Settings.batteryWarning
+    property int criticalThreshold: Settings.batteryCritical
 
     // The value comes from the device, the metric owns the states and the
     // glyphs of it.
@@ -98,8 +98,8 @@ Module {
     // ── power profile menu ──────────────────────────────────────────────────
 
     popup: Popup {
-        implicitWidth: 180
-        implicitHeight: 120
+        contentWidth: 180
+        contentHeight: 120
 
         Column {
             anchors.centerIn: parent

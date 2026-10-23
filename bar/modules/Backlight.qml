@@ -15,7 +15,9 @@ Module {
     bg: Theme.backlight
     minChars: 7
 
-    readonly property BacklightMetric metric: BacklightMetric {}
+    readonly property BacklightMetric metric: BacklightMetric {
+        interval: Settings.backlightInterval * 1000
+    }
 
     // The poll that fills the metric.
     readonly property Poller poller: Poller { metric: root.metric }
@@ -37,8 +39,8 @@ Module {
 
     popup: Popup {
         radius: 16
-        implicitWidth: 300
-        implicitHeight: 48
+        contentWidth: 300
+        contentHeight: 48
 
         Row {
                 anchors.fill: parent

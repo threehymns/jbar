@@ -15,7 +15,10 @@ PanelWindow {
     id: bar
 
     // waybar's "output" option: the bar is only shown on these outputs.
-    property var outputs: ["eDP-1", "HDMI-A-1", "DP-2"]
+    // The outputs are a setting of the bar, an empty list shows the bar on
+    // every output.
+    readonly property var outputs: Settings.outputs.split(",")
+        .map(output => output.trim()).filter(output => output !== "")
 
     readonly property string outputName: screen ? screen.name : ""
 
@@ -96,7 +99,6 @@ PanelWindow {
                 Volume {}
                 Backlight {}
                 Battery {}
-                PowerGroup {}
             }
         }
     }

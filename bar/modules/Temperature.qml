@@ -13,7 +13,12 @@ Module {
     bg: Theme.temperature
     minChars: 8
 
-    readonly property TemperatureMetric metric: TemperatureMetric {}
+    readonly property TemperatureMetric metric: TemperatureMetric {
+        unit: Settings.temperatureUnit
+        thermalZone: Settings.thermalZone
+        criticalCelsius: Settings.temperatureCritical
+        interval: Settings.temperatureInterval * 1000
+    }
 
     // The poll that fills the metric.
     readonly property Poller poller: Poller { metric: root.metric }
@@ -22,5 +27,5 @@ Module {
     tip: root.metric.tip
 
     iconText: root.metric.critical ? Icons.tempCritical : root.metric.glyph
-    labelText: root.metric.value + "°F"
+    labelText: root.metric.value + root.metric.unitLabel
 }

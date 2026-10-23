@@ -30,10 +30,11 @@ QtObject {
     readonly property color gray: "#928374"
 
     // ── main colours ────────────────────────────────────────────────────────
-    readonly property color accent: blue
+    // The three colours the user can change live in the settings.
+    readonly property color accent: Settings.accentColor
     readonly property color mainBr: bg4
-    readonly property color mainBg: "#1d2021"
-    readonly property color mainFg: fg1
+    readonly property color mainBg: Settings.backgroundColor
+    readonly property color mainFg: Settings.foregroundColor
     readonly property color hoverBg: bg1
     readonly property color hoverFg: Qt.rgba(fg1.r, fg1.g, fg1.b, 0.75)
     // The dimmed colour of a secondary label (the mpris artist).
@@ -64,14 +65,14 @@ QtObject {
     // The waybar stylesheet uses "Geist", "Maple Mono NF", sans-serif. Qt
     // resolves the Nerd Font glyphs through fontconfig on its own, so the
     // primary family is all that is needed here.
-    readonly property string fontFamily: "Geist"
+    readonly property string fontFamily: Settings.fontFamily
 
     // The Nerd Font the icons are drawn with. Fontconfig resolves the
     // private use codepoints of the waybar config to this font, so using it
     // explicitly keeps the icons identical to the waybar ones.
-    readonly property string iconFont: "CaskaydiaCove Nerd Font"
-    readonly property int fontSize: 16
-    readonly property int iconSize: 16
+    readonly property string iconFont: Settings.iconFont
+    readonly property int fontSize: Settings.fontSize
+    readonly property int iconSize: Settings.fontSize
 
     // waybar's "min-length"/"max-length" are expressed in characters. Pango,
     // the text stack waybar uses, measures a character of the bar font at

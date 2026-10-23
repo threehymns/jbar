@@ -53,6 +53,9 @@ QtObject {
     readonly property var battery: ["󰂎", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"]
     readonly property string batteryCharging: "󰉁" // charging
 
+    // settings
+    readonly property string settings: "󰒓" // nf-md-cog
+
     // idle inhibitor / power
     readonly property string idleActive: "󱤱" // idle active
     readonly property string idleInactive: "󰾪" // idle inactive

@@ -4,6 +4,7 @@
 
 import Quickshell
 import "./bar/"
+import "./bar/adapters/"
 
 // jbar — a Quickshell port of the waybar "mechabar" config.
 //
@@ -11,6 +12,11 @@ import "./bar/"
 // just like the waybar "output" option does.
 
 ShellRoot {
+    // The values of the settings of the bar are stored in the config file
+    // of the shell, it reads them when the bar starts and writes them back
+    // when they change.
+    ConfigFile {}
+
     Variants {
         model: Quickshell.screens
 

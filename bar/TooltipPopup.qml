@@ -5,9 +5,14 @@ import QtQuick
 // The popup shows the tip of the module the pointer is over. The bar owns
 // one tooltip per output and the modules ask the bar for it, so the
 // tooltip of one output never shows up on another.
+//
+// A tooltip follows the pointer and does not animate: it is there when the
+// pointer arrives and it is gone when the pointer leaves.
 Popup {
     // The text of the tip.
     property string tipText: ""
+
+    duration: 0
 
     content: Label {
         id: tipLabel
@@ -17,6 +22,6 @@ Popup {
         pixelSize: 13
     }
 
-    implicitWidth: tipLabel.implicitWidth + 20
-    implicitHeight: tipLabel.implicitHeight + 14
+    contentWidth: tipLabel.implicitWidth + 20
+    contentHeight: tipLabel.implicitHeight + 14
 }

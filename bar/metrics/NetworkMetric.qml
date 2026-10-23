@@ -11,7 +11,7 @@ Metric {
         "nmcli -t -f DEVICE,TYPE,STATE device 2>/dev/null | grep -v '^lo' | head -1"]
 
     // How often the command runs, in milliseconds.
-    readonly property int interval: 10000
+    property int interval: 10000
 
     // a sample is the kind of the connection
     parse: output => {

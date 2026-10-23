@@ -1,5 +1,4 @@
 import QtQuick
-import Quickshell
 import Quickshell.Bluetooth
 import "../"
 
@@ -35,8 +34,7 @@ Module {
         return Icons.bluetoothDisabled
     }
 
-    onClicked: Quickshell.execDetached(["xdg-open",
-        "vicinae://launch/@Gelei/store.vicinae.bluetooth/devices"])
+    onClicked: root.run(Settings.bluetoothManagerCommand)
 
     iconText: root.icon
 }

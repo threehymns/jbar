@@ -13,7 +13,11 @@ Module {
     bg: Theme.cpu
     minChars: 7
 
-    readonly property CpuMetric metric: CpuMetric {}
+    readonly property CpuMetric metric: CpuMetric {
+        warningThreshold: Settings.cpuWarning
+        criticalThreshold: Settings.cpuCritical
+        interval: Settings.cpuInterval * 1000
+    }
 
     // The poll that fills the metric.
     readonly property Poller poller: Poller { metric: root.metric }

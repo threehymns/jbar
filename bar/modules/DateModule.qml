@@ -24,7 +24,7 @@ Module {
     onHoveredEnter: root.openPopup()
 
     iconText: Icons.calendar
-    labelText: root.now ? Qt.formatDate(root.now, "dd-MM") : ""
+    labelText: root.now ? Qt.formatDate(root.now, Settings.dateFormat) : ""
 
     Timer {
         interval: 60000
@@ -34,8 +34,8 @@ Module {
     }
 
     popup: Popup {
-        implicitWidth: calendar.implicitWidth + 20
-        implicitHeight: calendar.implicitHeight + 20
+        contentWidth: calendar.implicitWidth + 20
+        contentHeight: calendar.implicitHeight + 20
 
         Calendar {
             id: calendar

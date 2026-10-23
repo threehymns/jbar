@@ -11,7 +11,7 @@ Metric {
     readonly property var command: ["sh", "-c", "head -1 /proc/stat"]
 
     // How often the command runs, in milliseconds.
-    readonly property int interval: 10000
+    property int interval: 10000
 
     // The thresholds of the waybar config.
     warningThreshold: 75
