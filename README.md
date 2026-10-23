@@ -9,6 +9,7 @@ hover behaviour.
 
 ```
 shell.qml            entry point
+settings.qml         the settings without the bar
 config.example.json  a template of the settings file (not the live config)
 bar/Bar.qml          the panel and the module layout
 bar/Module.qml       base class of every module (background, padding, mouse)
@@ -21,6 +22,7 @@ bar/MetricsPollers.qml the one poller of every shared metric
 bar/NiriReconnect.qml the reconnection policy of the niri event stream
 bar/Settings.qml     the values of the bar the user can change
 bar/SettingsPage.qml the page of the settings
+bar/SettingsWindow.qml the settings in a window of their own
 bar/SettingRow.qml   a row of the settings page
 bar/DrawerGroup.qml  a group of modules, the hidden ones hidden
 bar/Motion.qml       an animation of the bar
@@ -75,7 +77,65 @@ template; the schema is documented in
 
 The settings are changed in the page of the settings: the button of the
 settings slides out of the group of the logo of the distribution, it opens
-the page in a popup below the bar.
+the page in a popup below the bar. The same page is also a window of its
+own, which can be opened from a shell command.
+
+### Opening the settings
+
+While the bar is running, ask its `jbar` IPC target to show the settings:
+
+```bash
+qs ipc -p ./shell.qml call jbar settings
+qs ipc -p ./shell.qml call jbar toggleSettings
+qs ipc -p ./shell.qml call jbar closeSettings
+```
+
+Use `-c jbar` instead of `-p ./shell.qml` when jbar is installed as the
+named configuration `~/.config/quickshell/jbar/shell.qml`. `qs ipc show`
+lists the target and the functions the running instance exposes.
+
+The command does not depend on a bar being visible: the settings window
+belongs to the shell, not to a bar. A screen without a bar, for example one
+excluded by `outputs`, can still show the settings window.
+
+When the bar is not running, the standalone entry point starts the settings
+on its own:
+
+```bash
+qs -p ./settings.qml
+```
+
+It uses the same `$XDG_CONFIG_HOME/quickshell/jbar/config.json` as the bar,
+so a change made in either entry point is used by the other. Closing the
+standalone window ends that Quickshell instance.
+
+The shell owns exactly one settings window. A second `settings` call shows
+the window that is already open and asks the compositor to focus it; it
+never creates another window. The popup of the bar and the standalone
+window both use the same page.
+
+A keybind can open the settings from niri:
+
+```kdl
+binds {
+    Mod+Shift+Comma { spawn "qs" "ipc" "-p" "/home/you/.config/quickshell/jbar/shell.qml" "call" "jbar" "settings"; }
+}
+```
+
+or from Hyprland:
+
+```ini
+bind = SUPER SHIFT, S, exec, qs ipc -p /home/you/.config/quickshell/jbar/shell.qml call jbar settings
+```
+
+When the bar may not be running, bind the standalone entry point instead:
+
+```ini
+bind = SUPER SHIFT, S, exec, qs -p /home/you/.config/quickshell/jbar/settings.qml
+```
+
+Use the path of the checkout in place of
+`/home/you/.config/quickshell/jbar`.
 
 ## Configuration reference
 

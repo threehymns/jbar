@@ -16,6 +16,7 @@ SettingRow SettingRow.qml
 SettingText SettingText.qml
 SettingToggle SettingToggle.qml
 SettingsPage SettingsPage.qml
+SettingsWindow SettingsWindow.qml
 TooltipPopup TooltipPopup.qml
 singleton BarOutputs BarOutputs.qml
 singleton ConfigMerge ConfigMerge.qml

@@ -64,7 +64,7 @@ echo "== tests =="
 
 echo "== qmllint =="
 mapfile -d '' files < <(find bar tests -type f -name '*.qml' -print0 | sort -z)
-files+=(shell.qml)
+files+=(shell.qml settings.qml)
 "$qmllint" -I "$qmlimport" "${files[@]}"
 printf '\n'
 echo "qmllint: ok (known warnings are documented in README.md)"
@@ -81,7 +81,7 @@ fail() {
 
 # The underscore modules of Quickshell are private implementation details.
 private_imports="$(grep -RInE '^[[:space:]]*import[[:space:]]+Quickshell\.[A-Za-z0-9_]+\._' \
-    bar tests shell.qml || true)"
+    bar tests shell.qml settings.qml || true)"
 if [[ -n "$private_imports" ]]; then
     echo "$private_imports" >&2
     fail "a private Quickshell module is imported; use its public module instead"
@@ -138,7 +138,7 @@ config="config.example.json"
 if [[ ! -f "$config" ]]; then
     fail "config.example.json is missing"
 else
-    if grep -RIn 'config\.example\.json' bar shell.qml >/dev/null; then
+    if grep -RIn 'config\.example\.json' bar shell.qml settings.qml >/dev/null; then
         fail "the bar must not read config.example.json; the live config is in \$XDG_CONFIG_HOME"
     fi
 
@@ -195,6 +195,98 @@ while IFS= read -r key; do
 done <<< "${settings_keys:-}"
 if ! grep -Fq 'tests/check.sh' README.md; then
     fail "README.md does not use tests/check.sh in its test instructions"
+fi
+
+# The settings window is a window of the shell, not a popup of a bar. The
+# shell owns one instance and reuses it, so a second `settings` call cannot
+# create another window. settings.qml is the same window without the bar.
+settings_window="bar/SettingsWindow.qml"
+if [[ ! -f "$settings_window" ]]; then
+    fail "bar/SettingsWindow.qml is missing"
+else
+    if ! grep -qE '^[[:space:]]*FloatingWindow[[:space:]]*\{' "$settings_window"; then
+        fail "bar/SettingsWindow.qml is not a FloatingWindow"
+    fi
+    if ! grep -Fq 'title: "jbar settings"' "$settings_window"; then
+        fail "bar/SettingsWindow.qml does not use the title \"jbar settings\""
+    fi
+    if ! grep -qE '^[[:space:]]*visible:[[:space:]]*false' "$settings_window"; then
+        fail "bar/SettingsWindow.qml is not hidden until it is opened"
+    fi
+    for fn in open close toggle; do
+        if ! grep -qE "function ${fn}\\(" "$settings_window"; then
+            fail "bar/SettingsWindow.qml does not define ${fn}()"
+        fi
+    done
+    if ! grep -Fq 'Keys.onEscapePressed' "$settings_window"; then
+        fail "bar/SettingsWindow.qml cannot be closed with Escape"
+    fi
+fi
+
+if ! grep -qE '^SettingsWindow SettingsWindow\.qml$' bar/qmldir; then
+    fail "bar/qmldir does not register the SettingsWindow"
+fi
+
+windows="$(grep -cE '^    SettingsWindow[[:space:]]*\{' shell.qml || true)"
+if [[ "$windows" -ne 1 ]]; then
+    fail "shell.qml must own exactly one settings window, found $windows"
+fi
+if ! grep -qE '^    IpcHandler[[:space:]]*\{' shell.qml; then
+    fail "shell.qml must register the IpcHandler on the shell root, not inside a Bar"
+fi
+if ! grep -qE '^[[:space:]]*target:[[:space:]]*"jbar"' shell.qml; then
+    fail "the IPC target of the settings is not \"jbar\""
+fi
+for fn in settings closeSettings toggleSettings; do
+    if ! grep -qE "function ${fn}\\([^)]*\\):[[:space:]]*void" shell.qml; then
+        fail "the IPC target does not expose ${fn}(): void"
+    fi
+done
+if ! grep -qE 'function settings\(\): void[[:space:]]*\{[^}]*settingsWindow\.open\(\)' shell.qml; then
+    fail "the IPC settings function does not open the one settings window"
+fi
+
+if [[ ! -f settings.qml ]]; then
+    fail "settings.qml is missing; the settings cannot be opened without the bar"
+else
+    if ! grep -qE '^[[:space:]]*ShellRoot[[:space:]]*\{' settings.qml; then
+        fail "settings.qml is not a ShellRoot"
+    fi
+    if ! grep -qF 'ConfigFile {}' settings.qml; then
+        fail "settings.qml does not load the config file"
+    fi
+    if ! grep -qE '^    SettingsWindow[[:space:]]*\{' settings.qml; then
+        fail "settings.qml does not show the settings window"
+    fi
+    if ! grep -qF 'Component.onCompleted' settings.qml \
+        || ! grep -qF 'settingsWindow.open()' settings.qml; then
+        fail "settings.qml does not open the settings window"
+    fi
+    if ! grep -qF 'onVisibleChanged' settings.qml; then
+        fail "settings.qml does not react to the window being closed"
+    fi
+    if ! grep -qF 'Qt.quit()' settings.qml; then
+        fail "settings.qml does not end when its window is closed"
+    fi
+fi
+
+if ! grep -Fq 'qs ipc -p ./shell.qml call jbar settings' README.md; then
+    fail "README.md does not document the IPC command that opens the settings"
+fi
+if ! grep -Fq 'qs -p ./settings.qml' README.md; then
+    fail "README.md does not document the standalone settings entry point"
+fi
+if ! grep -Fq 'qs ipc show' README.md; then
+    fail "README.md does not document how to inspect the IPC target"
+fi
+if ! grep -Fq 'exactly one settings window' README.md; then
+    fail "README.md does not document the one settings window guarantee"
+fi
+if ! grep -Fq 'Mod+Shift+Comma' README.md; then
+    fail "README.md has no niri keybind example for the settings"
+fi
+if ! grep -Fq 'bind = SUPER SHIFT, S, exec' README.md; then
+    fail "README.md has no Hyprland keybind example for the settings"
 fi
 
 # Every command and font the default settings and the modules invoke has to
