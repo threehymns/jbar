@@ -3,6 +3,7 @@ import QtQuick.Controls
 import Quickshell
 import Quickshell.Services.UPower
 import "../"
+import "../metrics/"
 
 // Battery — port of the waybar "battery" module.
 //
@@ -74,14 +75,16 @@ Module {
     fg: root.critical ? Theme.critical : (root.warning ? Theme.warning
         : (root.charging ? Theme.charging : Theme.mainFg))
 
-    tip: root.charging
-        ? "<b>Charging</b>: " + root.timeLeft
-        : "<b>Discharging</b>: " + root.timeLeft
+    tip: "<b>" + root.batteryState.status + "</b>"
+        + (root.timeLeft === "" ? "" : ": " + root.timeLeft)
 
     readonly property string timeLeft: {
         if (!device)
             return ""
-        const seconds = root.charging ? device.timeToFull : device.timeToEmpty
+        // a full battery has no time to empty, it is either still charging or
+        // already fully charged
+        const seconds = root.charging || root.batteryState.isFull
+            ? device.timeToFull : device.timeToEmpty
         if (!seconds)
             return ""
         const minutes = Math.round(seconds / 60)
@@ -147,27 +150,35 @@ Module {
 
     // ── notifications (waybar "events") ──────────────────────────────────────
 
-    property bool warned: false
-    property bool criticalNotified: false
-    property bool chargedNotified: false
+    // The state machine owns the warning thresholds and the re-arming, the
+    // module only turns its events into notifications.
+    readonly property BatteryState batteryState: BatteryState {
+        warningThreshold: root.warningThreshold
+        criticalThreshold: root.criticalThreshold
 
+        onLow: root.notify("Battery Low (" + root.warningThreshold + "%)",
+            "critical", "battery-020")
+        onCritical: root.notify("Battery Critical (" + root.criticalThreshold
+            + "%)", "critical", "battery-010")
+        onFullCharge: root.notify("Battery Full (100%)", "normal",
+            "battery-100-charged")
+    }
+
+    Component.onCompleted: root.checkEvents()
+
+    onDeviceChanged: checkEvents()
     onPercentageChanged: checkEvents()
     onChargingChanged: checkEvents()
+    onFullChanged: checkEvents()
+    onDischargingChanged: checkEvents()
+    onWarningThresholdChanged: checkEvents()
+    onCriticalThresholdChanged: checkEvents()
 
     function checkEvents() {
         if (!present)
             return
-        if (discharging && percentage <= criticalThreshold && !criticalNotified) {
-            criticalNotified = true
-            warned = true
-            notify("Battery Critical (" + criticalThreshold + "%)", "critical", "battery-010")
-        } else if (discharging && percentage <= warningThreshold && !warned) {
-            warned = true
-            notify("Battery Low (" + warningThreshold + "%)", "critical", "battery-020")
-        } else if (charging && percentage >= 100 && !chargedNotified) {
-            chargedNotified = true
-            notify("Battery Full (100%)", "normal", "battery-100-charged")
-        }
+        batteryState.update(root.percentage, root.charging, root.full,
+            root.discharging)
     }
 
     function notify(summary, urgency, icon) {
