@@ -9,6 +9,7 @@ hover behaviour.
 
 ```
 shell.qml            entry point
+config.example.json  a template of the settings file (not the live config)
 bar/Bar.qml          the panel and the module layout
 bar/Module.qml       base class of every module (background, padding, mouse)
 bar/Theme.qml        colours, fonts and metrics (theme.css)
@@ -30,6 +31,7 @@ bar/adapters/        the things that talk to the system
 bar/metrics/         the metric of every system the bar shows
 bar/modules/         one file per module
 tests/               the tests of the headless modules
+tests/check.sh       the tests and the lint gate
 ```
 
 ## Running
@@ -58,17 +60,145 @@ The folder and the file are created the first time a setting changes. The
 file is read when the bar starts and written when a value changes, a file
 that was edited by hand is picked up while the bar runs.
 
+`config.example.json` at the root of the checkout is a template of that
+file: every key with its default value. It is not the live config, the bar
+never reads it. Copy it to the path above if you want to start from the
+template; the schema is documented in
+[Configuration reference](#configuration-reference).
+
 The settings are changed in the page of the settings: the button of the
 settings slides out of the group of the logo of the distribution, it opens
 the page in a popup below the bar.
 
+## Configuration reference
+
+The live file is `$XDG_CONFIG_HOME/quickshell/jbar/config.json`. Every key
+is optional: a key that is missing uses its default, which is also the value
+in `config.example.json`. Keys that are not listed here are kept in the file
+but have no effect on the bar.
+
+The type of a colour is a string with a `#rrggbb` value or a colour name Qt
+knows. A command is a command line, split into arguments at whitespace;
+single or double quotes keep a part together. Commands are run directly and
+not through a shell, so pipes, variables and `~` do not work in them. The
+one exception is `updatesCheckCommand`, which the metric runs as
+`sh -c "<command> 2>/dev/null | wc -l"`: it may use shell syntax, and its
+output is counted line by line as the number of pending updates.
+
+`outputs` is a comma separated list of output names (`eDP-1`, `HDMI-A-1`,
+`DP-2`). Spaces around a name are ignored. An empty string shows the bar on
+every output. The names are the ones of `Quickshell.screens`, which are the
+output names of niri.
+
+### Bar
+
+| Key                  | Type   | Default                              | Meaning                                              |
+| -------------------- | ------ | ------------------------------------ | ---------------------------------------------------- |
+| `outputs`            | string | `"eDP-1, HDMI-A-1, DP-2"`            | the outputs the bar is shown on; empty means all     |
+| `fontFamily`         | string | `"Geist"`                            | the font of the text of the bar                      |
+| `iconFont`           | string | `"CaskaydiaCove Nerd Font"`          | the font the icons are drawn with                    |
+| `fontSize`           | int    | `16`                                 | the size of the text and the icons, in pixels        |
+| `reducedMotion`      | bool   | `false`                              | turn the animations off                              |
+| `popupExitAnimation` | bool   | `true`                               | shrink a popup back into the bar when it closes      |
+
+### Clock
+
+| Key            | Type   | Default     | Meaning                                             |
+| -------------- | ------ | ----------- | --------------------------------------------------- |
+| `clock24Hour`  | bool   | `true`      | `true` shows 24 hour time, `false` 12 hour time      |
+| `dateFormat`   | string | `"dd-MM"`   | the date format, in the syntax of `Qt.formatDate`    |
+
+### Commands
+
+| Key                      | Type   | Default                                                                         | Meaning                                                        |
+| ------------------------ | ------ | ------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| `launcherCommand`        | string | `"rofi -show drun"`                                                             | click on the distribution logo opens the launcher              |
+| `powerMenuCommand`       | string | `"wlogout"`                                                                     | the power button opens the power menu                          |
+| `networkManagerCommand`  | string | `"xdg-open vicinae://launch/@dagimg-dot/store.vicinae.wifi-commander/scan-wifi"` | click on the network module opens the network manager          |
+| `bluetoothManagerCommand` | string | `"xdg-open vicinae://launch/@Gelei/store.vicinae.bluetooth/devices"`            | click on the Bluetooth module opens the Bluetooth manager      |
+| `updatesCommand`         | string | `"kitty -T Updates yay -Syua"`                                                  | click on the updates module installs the updates               |
+| `updatesCheckCommand`    | string | `"checkupdates"`                                                                | counts the pending updates; run through `sh`, see above        |
+
+### Thresholds
+
+| Key                    | Type | Default | Meaning                                                   |
+| ---------------------- | ---- | ------- | --------------------------------------------------------- |
+| `cpuWarning`           | int  | `75`    | processor usage that is a warning, in percent             |
+| `cpuCritical`          | int  | `90`    | processor usage that is critical, in percent              |
+| `memoryWarning`        | int  | `75`    | used memory that is a warning, in percent                 |
+| `memoryCritical`       | int  | `90`    | used memory that is critical, in percent                  |
+| `temperatureCritical`  | int  | `90`    | critical temperature in degrees Celsius, converted for display |
+| `batteryWarning`       | int  | `20`    | battery charge that is a warning, in percent              |
+| `batteryCritical`      | int  | `10`    | battery charge that is critical, in percent               |
+
+### Polling
+
+| Key                   | Type | Default | Meaning                              |
+| --------------------- | ---- | ------- | ------------------------------------ |
+| `cpuInterval`         | int  | `10`    | how often the processor is read, in seconds |
+| `memoryInterval`      | int  | `10`    | how often the memory is read, in seconds    |
+| `temperatureInterval` | int  | `10`    | how often the temperature is read, in seconds |
+| `networkInterval`     | int  | `10`    | how often the network is read, in seconds   |
+| `backlightInterval`   | int  | `2`     | how often the brightness is read, in seconds |
+| `updatesInterval`     | int  | `60`    | how often the updates are counted, in minutes |
+
+### System
+
+| Key                 | Type   | Default | Meaning                                                          |
+| ------------------- | ------ | ------- | ---------------------------------------------------------------- |
+| `thermalZone`       | int    | `1`     | the thermal zone the temperature is read from                    |
+| `temperatureUnit`   | string | `"F"`   | `"F"` or `"C"`; the threshold is stored in Celsius in both cases |
+| `volumeStep`        | int    | `2`     | the step of the volume on scroll, in percent                     |
+| `volumeMax`         | int    | `150`   | the loudest volume, in percent                                   |
+
+### Colours
+
+| Key               | Type   | Default     | Meaning                                   |
+| ----------------- | ------ | ----------- | ----------------------------------------- |
+| `accentColor`     | string | `"#83a598"` | the accent, the highlighted parts of the bar |
+| `backgroundColor` | string | `"#1d2021"` | the background of the bar                 |
+| `foregroundColor` | string | `"#ebdbb2"` | the text of the bar                       |
+
 ## Tests
 
+The gate of the tree runs the headless tests and lints every QML file:
+
+```bash
+./tests/check.sh
+```
+
+The script first runs the tests below, then `qmllint` over
+`shell.qml`, `bar/` and `tests/`. It also checks that the example config
+names every setting and that the README lists the requirements; the JSON of
+the example is parsed when `jq` or Python 3 is available. The gate fails on
+a failing test or a lint error.
+
+### Known lint warnings
+
+With Qt 6.11.2 the tree lints with exit status 0 and the warnings below.
+They are documented instead of silenced:
+
+* `uncreatable-type` and `unresolved-type` — the qmltypes of Quickshell do
+  not mark `PanelWindow` as creatable and do not expose the declarative
+  dependencies of `Bluetooth.defaultAdapter` and `Bluetooth.devices`. The bar
+  loads them at runtime with Quickshell 0.3.1; the warning is in the type
+  metadata of Quickshell, not in the bar.
+* `missing-property` (`DrawerGroup.triggerModule.hovered`) — qmllint types
+  the property as `QQuickItem`, while the bar puts `Module` objects there.
+* `unqualified` and the `pragma ComponentBehavior: Bound` infos — nested
+  components in the drawers, the calendar, the settings page and the
+  tooltip read the ids of their outer component. These are style warnings;
+  they do not change the behaviour and can be fixed file by file.
+* `unused-imports` infos — these imports name no type of the file; they are
+  harmless.
+
 The metrics of the systems and the settings of the bar are plain objects
-without any I/O, so they can be tested without a bar and without a command:
+without any I/O, so they can be tested without a bar and without a command.
+The two commands also work on their own:
 
 ```bash
 /usr/lib/qt6/bin/qmltestrunner -input tests
+/usr/lib/qt6/bin/qmllint -I /usr/lib/qt6/qml shell.qml bar/*.qml bar/*/*.qml tests/*.qml
 ```
 
 ## Module mapping
@@ -120,8 +250,27 @@ shows up on another.
 
 ## Requirements
 
-* Quickshell (tested with 0.3.1)
-* `Geist` and a Nerd Font (`CaskaydiaCove Nerd Font` is what fontconfig
-  picks for the icons of the waybar config, so the icons look the same)
-* `niri`, `nmcli`, `brightnessctl`, `checkupdates`, `playerctl`/`MPRIS`,
-  `rofi` and `wlogout` for the actions of the individual modules
+* Quickshell (tested with 0.3.1; the idle inhibitor is imported from the
+  public `Quickshell.Wayland` module, which re-exports it in 0.3.1)
+* `Geist` for the text of the bar and a Nerd Font for the icons; the default
+  icon font is `CaskaydiaCove Nerd Font`
+* `niri` — the workspaces, the focused window and the workspace actions
+* `nmcli` (NetworkManager) — the state of the network connection
+* `brightnessctl` — reading and setting the screen brightness
+* `checkupdates` (pacman-contrib) — counting the pending updates
+* an MPRIS player — the bar reads it through the MPRIS service of
+  Quickshell; `playerctl` is a convenient way to check the player
+* `rofi` — the default application launcher
+* `wlogout` — the default power menu
+* `kitty` and `yay` — the default command that installs the updates
+* `notify-send` (libnotify) and a notification daemon — the battery events
+* `xdg-open` and a handler for the `vicinae://` URIs (vicinae) — the default
+  network and Bluetooth managers
+* `sh` and the usual core utilities — the command lines of the metrics
+* PipeWire, UPower and BlueZ — the volume, battery and Bluetooth services
+  are read through Quickshell
+
+For development:
+
+* `qmltestrunner` and `qmllint` from Qt 6 (tested with Qt 6.11.2)
+* `bash` — `tests/check.sh`
