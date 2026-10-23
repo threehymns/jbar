@@ -1,12 +1,17 @@
 import QtQuick
 import Quickshell
 import "../"
+import "../metrics/"
 
 // Date — port of the waybar "clock#date" module.
 //
 // Shows the date and opens the calendar of the waybar config when hovered.
 // Clicking the date switches between the year and the month view, which is
 // what the waybar "actions" section does.
+//
+// The calendar is built when the popup is opened for the first time and then
+// kept: a closed calendar is more than a thousand text objects, and a
+// retained one opens without building them again.
 Module {
     id: root
 
@@ -20,8 +25,15 @@ Module {
     property var now: new Date()
     property bool yearMode: true
 
+    CalendarMath {
+        id: calendarMath
+    }
+
     onClicked: root.yearMode = !root.yearMode
-    onHoveredEnter: root.openPopup()
+    onHoveredEnter: {
+        calendarContent.activate()
+        root.openPopup()
+    }
 
     iconText: Icons.calendar
     labelText: root.now ? Qt.formatDate(root.now, Settings.dateFormat) : ""
@@ -34,14 +46,24 @@ Module {
     }
 
     popup: Popup {
-        contentWidth: calendar.implicitWidth + 20
-        contentHeight: calendar.implicitHeight + 20
+        // The calendar has a fixed preferred size, so the popup knows its
+        // size before the lazy content exists and does not resize when the
+        // view or the month changes.
+        contentWidth: calendarMath.preferredWidth + 20
+        contentHeight: calendarMath.preferredHeight + 20
 
-        Calendar {
-            id: calendar
+        LazyContent {
+            id: calendarContent
             anchors.centerIn: parent
-            currentDate: root.now
-            yearMode: root.yearMode
+            width: calendarMath.preferredWidth
+            height: calendarMath.preferredHeight
+
+            content: Component {
+                Calendar {
+                    currentDate: root.now
+                    yearMode: root.yearMode
+                }
+            }
         }
     }
 }

@@ -2,6 +2,7 @@ BacklightMetric BacklightMetric.qml
 BatteryDevice BatteryDevice.qml
 BatteryState BatteryState.qml
 BrightnessWriter BrightnessWriter.qml
+CalendarMath CalendarMath.qml
 CpuMetric CpuMetric.qml
 MemoryMetric MemoryMetric.qml
 NetworkMetric NetworkMetric.qml
